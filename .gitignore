@@ -1,0 +1,16 @@
+# Java / Maven
+backend/target/
+
+# Frontend / Vite
+frontend/node_modules/
+frontend/dist/
+
+# Ambiente e sistema
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+*.iml
+Thumbs.db
+.DS_Store
