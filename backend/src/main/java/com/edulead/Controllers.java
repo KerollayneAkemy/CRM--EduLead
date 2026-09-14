@@ -47,7 +47,13 @@ class CursoController {
         return cursos.save(curso);
     }
     @PutMapping("/{id}") Curso update(@PathVariable Long id, @RequestBody Curso curso) { curso.id = id; return cursos.save(curso); }
-    @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) void delete(@PathVariable Long id) { cursos.deleteById(id); }
+    @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) void delete(@PathVariable Long id) {
+        try {
+            cursos.deleteById(id);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw ApiException.badRequest("Não é possível excluir este curso pois existem interessados vinculados a ele. Recomendamos arquivá-lo.");
+        }
+    }
 }
 
 @RestController
