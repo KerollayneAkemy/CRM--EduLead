@@ -1,10 +1,10 @@
-package com.edulead;
+package com.edulead.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-class Interacao {
+public class Interacao {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) public Long id;
     public String tipo;
     public String descricao;

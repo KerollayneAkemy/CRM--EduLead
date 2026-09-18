@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ page, nav, isOpen, onClose }) {
+export default function Sidebar({ page, nav, isManager, isOpen, onClose }) {
     const handleNav = p => {
         nav(p);
         if (onClose) onClose();
@@ -15,11 +15,8 @@ export default function Sidebar({ page, nav, isOpen, onClose }) {
                     'Funil',
                     'Interessados',
                     'Novo interessado',
-                    'Cursos',
-                    'Cursos arquivados',
-                    'Usuários',
                     'Tarefas'
-                ].map(x => (
+                ].concat(isManager ? ['Cursos', 'Cursos arquivados', 'Usuários'] : []).map(x => (
                     <button
                         key={x}
                         className={page === x ? 'on' : ''}

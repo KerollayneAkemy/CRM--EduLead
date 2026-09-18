@@ -82,6 +82,28 @@ export default function Records({ type, path, fields, notice, load }) {
         }
     }
 
+    async function toggleUserActive(item) {
+        try {
+            await api(`/usuarios/${item.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...item,
+                    ativo: item.ativo === false
+                })
+            });
+
+            refresh();
+            if (load) load();
+            notice(
+                item.ativo === false
+                    ? 'Usuário ativado com sucesso.'
+                    : 'Usuário desativado com sucesso.'
+            );
+        } catch (e) {
+            notice(e.message);
+        }
+    }
+
     const singular = type === 'Cursos' ? 'curso' : 'usuário';
     const activeItems = type === 'Cursos' ? items.filter(x => x.ativo !== false) : items;
 
@@ -262,6 +284,27 @@ export default function Records({ type, path, fields, notice, load }) {
                                                 </button>
                                             </div>
                                         )}
+                                    </div>
+                                ) : type === 'Usuários' ? (
+                                    <div className="record-user-actions">
+                                        <em>
+                                            {x.ativo === false
+                                                ? 'Inativo'
+                                                : 'Ativo'}
+                                        </em>
+                                        <button
+                                            type="button"
+                                            className={
+                                                x.ativo === false
+                                                    ? 'activate-user'
+                                                    : 'deactivate-user'
+                                            }
+                                            onClick={() => toggleUserActive(x)}
+                                        >
+                                            {x.ativo === false
+                                                ? 'Ativar'
+                                                : 'Desativar'}
+                                        </button>
                                     </div>
                                 ) : (
                                     <em>

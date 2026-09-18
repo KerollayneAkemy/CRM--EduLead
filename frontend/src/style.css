@@ -32,3 +32,6 @@ body{background:radial-gradient(circle at 80% -10%,#dbe7ff 0,transparent 27%),#f
   .overview-row{grid-template-columns:1fr}
   .modal>section{padding:24px 18px}
 }
+
+.profile-menu{margin-left:auto;display:flex;align-items:center;gap:10px}.profile-action{display:flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--ink);cursor:pointer;text-align:left}.profile-menu span{border:0!important;padding:0!important}.profile-action b,.profile-action small{display:block}.profile-action b{font:700 12px 'DM Sans'}.profile-action b:before{content:none!important;display:none!important}.profile-action small{color:var(--muted);font-size:10px;margin-top:2px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.profile-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#477cf7,#2859d5);color:#fff;font:800 11px Manrope}.profile-menu .logout{margin-left:0;border:0;background:#fff0f1;color:var(--danger);font-weight:700;cursor:pointer;border-radius:7px;padding:8px 10px}
+.record-user-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.record-user-actions button{border:0;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer}.activate-user{background:#e7f8f0;color:#167a52}.deactivate-user{background:#fff0f1;color:#c84b57}

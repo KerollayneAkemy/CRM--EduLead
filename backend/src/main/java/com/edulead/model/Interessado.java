@@ -1,10 +1,10 @@
-package com.edulead;
+package com.edulead.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-class Interessado {
+public class Interessado {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) public Long id;
     @Column(nullable = false) public String nome;
     public String telefone;

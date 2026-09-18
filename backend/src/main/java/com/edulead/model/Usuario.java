@@ -1,4 +1,4 @@
-package com.edulead;
+package com.edulead.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-class Usuario {
+public class Usuario {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) public Long id;
     @Column(nullable = false) public String nome;
     @Column(unique = true, nullable = false) public String email;

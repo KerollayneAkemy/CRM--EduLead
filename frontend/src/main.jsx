@@ -15,6 +15,7 @@ import LeadForm from './pages/LeadForm';
 import Records from './pages/Records';
 import ArchivedCourses from './pages/ArchivedCourses';
 import Tasks from './pages/Tasks';
+import UserProfile from './pages/UserProfile';
 
 function App() {
     const [session, setSession] = useState(() =>
@@ -23,6 +24,7 @@ function App() {
 
     return session ? (
         <CRM
+            session={session}
             logout={() => {
                 localStorage.removeItem('edulead-session');
                 setSession(null);
@@ -33,7 +35,10 @@ function App() {
     );
 }
 
-function CRM({ logout }) {
+function CRM({ logout, session }) {
+    const isManager = ['GESTOR', 'GESTORA', 'ADMIN'].includes(
+        session?.usuario?.cargo
+    );
     const [page, setPage] = useState('Dashboard');
     const [menuOpen, setMenuOpen] = useState(false);
     const [leads, setLeads] = useState([]);
@@ -53,7 +58,7 @@ function CRM({ logout }) {
             const [a, b, c, d] = await Promise.all([
                 api('/interessados'),
                 api('/cursos'),
-                api('/usuarios'),
+                isManager ? api('/usuarios') : Promise.resolve([]),
                 api('/dashboard')
             ]);
 
@@ -86,11 +91,12 @@ function CRM({ logout }) {
 
     return (
         <>
-            <Header logout={logout} onToggleMenu={() => setMenuOpen(!menuOpen)} />
+            <Header user={session?.usuario} logout={logout} onProfile={() => nav('Meu perfil')} onToggleMenu={() => setMenuOpen(!menuOpen)} />
 
             <Sidebar
                 page={page}
                 nav={nav}
+                isManager={isManager}
                 isOpen={menuOpen}
                 onClose={() => setMenuOpen(false)}
             />
@@ -100,6 +106,8 @@ function CRM({ logout }) {
                     <Dashboard dash={dash} leads={leads} nav={nav} />
                 )}
 
+                {page === 'Meu perfil' && <UserProfile notice={notice} />}
+
                 {page === 'Funil' && <Pipeline {...common} />}
 
                 {page === 'Interessados' && (
@@ -108,7 +116,7 @@ function CRM({ logout }) {
 
                 {page === 'Novo interessado' && <LeadForm {...common} />}
 
-                {page === 'Cursos' && (
+                {isManager && page === 'Cursos' && (
                     <Records
                         {...common}
                         type="Cursos"
@@ -117,11 +125,11 @@ function CRM({ logout }) {
                     />
                 )}
 
-                {page === 'Cursos arquivados' && (
+                {isManager && page === 'Cursos arquivados' && (
                     <ArchivedCourses {...common} />
                 )}
 
-                {page === 'Usuários' && (
+                {isManager && page === 'Usuários' && (
                     <Records
                         {...common}
                         type="Usuários"

@@ -1,8 +1,11 @@
 export const API = 'http://localhost:8080/api';
 
 export async function api(path, options = {}) {
+    const session = JSON.parse(localStorage.getItem('edulead-session') || 'null');
+    const authHeader = session?.token ? { 'Authorization': `Bearer ${session.token}` } : {};
+
     const r = await fetch(API + path, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeader },
         ...options
     });
 

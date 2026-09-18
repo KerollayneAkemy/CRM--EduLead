@@ -1,0 +1,63 @@
+package com.edulead.security;
+
+import com.edulead.exception.ApiException;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+@Component
+public class AuthInterceptor implements HandlerInterceptor {
+    private final JwtService jwtService;
+
+    public AuthInterceptor(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        if (!(handler instanceof HandlerMethod handlerMethod)) {
+            return true;
+        }
+
+        if (request.getRequestURI().startsWith("/api/auth/login")) {
+            return true;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw ApiException.unauthorized("Token não fornecido ou inválido");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = jwtService.validateToken(token);
+        } catch (Exception e) {
+            throw ApiException.unauthorized("Token inválido ou expirado");
+        }
+
+        request.setAttribute("userId", claims.getSubject());
+        request.setAttribute("userRole", claims.get("role"));
+
+        RequiresRole requiresRole = handlerMethod.getMethodAnnotation(RequiresRole.class);
+        if (requiresRole == null) {
+            requiresRole = handlerMethod.getBeanType().getAnnotation(RequiresRole.class);
+        }
+
+        if (requiresRole != null) {
+            String role = (String) claims.get("role");
+            if (!requiresRole.value().equals(role) && !"GESTOR".equals(role) && !"GESTORA".equals(role)) {
+                throw ApiException.forbidden("Acesso negado");
+            }
+        }
+
+        return true;
+    }
+}

@@ -78,7 +78,7 @@ export default function Pipeline({ leads, load, notice }) {
                                         }
                                     >
                                         {STAGES.map(x => (
-                                            <option key={x}>
+                                            <option key={x} value={x}>
                                                 {label(x)}
                                             </option>
                                         ))}
