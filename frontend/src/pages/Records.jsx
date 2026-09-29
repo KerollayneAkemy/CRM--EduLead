@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
-import { label } from '../constants';
+import RecordSideForm from '../components/records/RecordSideForm';
+import RecordCard from '../components/records/RecordCard';
+import EditCourseModal from '../components/records/EditCourseModal';
 
 export default function Records({ type, path, fields, notice, load }) {
     const [items, setItems] = useState([]);
@@ -121,37 +123,13 @@ export default function Records({ type, path, fields, notice, load }) {
             </div>
 
             <div className="management-grid">
-                <form className="side-form" onSubmit={add}>
-                    <h2>Novo {singular}</h2>
-                    <p>
-                        Preencha os dados para disponibilizá-lo no
-                        sistema.
-                    </p>
-
-                    {fields.map(k => (
-                        <label key={k}>
-                            {label(k)}
-                            <input
-                                type={
-                                    k === 'senha'
-                                        ? 'password'
-                                        : k === 'email'
-                                            ? 'email'
-                                            : 'text'
-                                }
-                                value={f[k] || ''}
-                                onChange={e =>
-                                    setF({
-                                        ...f,
-                                        [k]: e.target.value
-                                    })
-                                }
-                            />
-                        </label>
-                    ))}
-
-                    <button>Salvar {singular}</button>
-                </form>
+                <RecordSideForm
+                    singular={singular}
+                    fields={fields}
+                    f={f}
+                    setF={setF}
+                    add={add}
+                />
 
                 <section className="records-panel">
                     <div className="records-panel-head">
@@ -165,110 +143,17 @@ export default function Records({ type, path, fields, notice, load }) {
 
                     <div className="record-cards">
                         {activeItems.map(x => (
-                            <article
-                                className="record-card"
+                            <RecordCard
                                 key={x.id}
-                            >
-                                <span className="record-avatar">
-                                    {x.nome?.slice(0, 1)}
-                                </span>
-
-                                <div className="record-details">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <b>{x.nome}</b>
-                                        {type === 'Cursos' && (
-                                            <span className="badge-active-status">Ativo</span>
-                                        )}
-                                    </div>
-                                    <small>
-                                        {x.email ||
-                                            x.descricao ||
-                                            x.cargo ||
-                                            'Sem descrição'}
-                                    </small>
-                                </div>
-
-                                {type === 'Cursos' ? (
-                                    <div className="record-actions-wrapper">
-                                        <button
-                                            type="button"
-                                            className="btn-menu-trigger"
-                                            onClick={() =>
-                                                setOpenMenuId(openMenuId === x.id ? null : x.id)
-                                            }
-                                            title="Opções"
-                                        >
-                                            ⋮
-                                        </button>
-                                        {openMenuId === x.id && (
-                                            <div className="record-dropdown-menu">
-                                                <button
-                                                    type="button"
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        setOpenMenuId(null);
-                                                        setEditingCourse({
-                                                            id: x.id,
-                                                            nome: x.nome,
-                                                            descricao: x.descricao || '',
-                                                            ativo: x.ativo
-                                                        });
-                                                    }}
-                                                >
-                                                    ✏️ Editar
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        setOpenMenuId(null);
-                                                        archiveCourse(x);
-                                                    }}
-                                                >
-                                                    📦 Arquivar
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="dropdown-item danger"
-                                                    onClick={() => {
-                                                        setOpenMenuId(null);
-                                                        removeCourse(x);
-                                                    }}
-                                                >
-                                                    🗑️ Excluir
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : type === 'Usuários' ? (
-                                    <div className="record-user-actions">
-                                        <em>
-                                            {x.ativo === false
-                                                ? 'Inativo'
-                                                : 'Ativo'}
-                                        </em>
-                                        <button
-                                            type="button"
-                                            className={
-                                                x.ativo === false
-                                                    ? 'activate-user'
-                                                    : 'deactivate-user'
-                                            }
-                                            onClick={() => toggleUserActive(x)}
-                                        >
-                                            {x.ativo === false
-                                                ? 'Ativar'
-                                                : 'Desativar'}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <em>
-                                        {x.ativo === false
-                                            ? 'Inativo'
-                                            : 'Ativo'}
-                                    </em>
-                                )}
-                            </article>
+                                x={x}
+                                type={type}
+                                openMenuId={openMenuId}
+                                setOpenMenuId={setOpenMenuId}
+                                setEditingCourse={setEditingCourse}
+                                archiveCourse={archiveCourse}
+                                removeCourse={removeCourse}
+                                toggleUserActive={toggleUserActive}
+                            />
                         ))}
 
                         {!activeItems.length && (
@@ -280,55 +165,11 @@ export default function Records({ type, path, fields, notice, load }) {
                 </section>
             </div>
 
-            {editingCourse && (
-                <div className="modal">
-                    <section>
-                        <button
-                            className="close"
-                            onClick={() => setEditingCourse(null)}
-                        >
-                            ×
-                        </button>
-                        <h1>Editar curso</h1>
-                        <form
-                            onSubmit={saveEdit}
-                            style={{
-                                border: 0,
-                                boxShadow: 'none',
-                                padding: 0,
-                                marginTop: '20px'
-                            }}
-                        >
-                            <label className="full">
-                                Nome
-                                <input
-                                    value={editingCourse.nome || ''}
-                                    onChange={e =>
-                                        setEditingCourse({
-                                            ...editingCourse,
-                                            nome: e.target.value
-                                        })
-                                    }
-                                    required
-                                />
-                            </label>
-                            <label className="full">
-                                Descrição
-                                <textarea
-                                    value={editingCourse.descricao || ''}
-                                    onChange={e =>
-                                        setEditingCourse({
-                                            ...editingCourse,
-                                            descricao: e.target.value
-                                        })
-                                    }
-                                />
-                            </label>
-                            <button type="submit">Salvar alterações</button>
-                        </form>
-                    </section>
-                </div>
-            )}
+            <EditCourseModal
+                editingCourse={editingCourse}
+                setEditingCourse={setEditingCourse}
+                saveEdit={saveEdit}
+            />
         </section>
     );
 }

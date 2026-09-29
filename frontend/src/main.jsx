@@ -109,7 +109,7 @@ function CRM({ logout, session }) {
 
             <main>
                 {page === 'Dashboard' && (
-                    <Dashboard dash={dash} leads={leads} nav={nav} />
+                    <Dashboard dash={dash} leads={leads} courses={courses} nav={nav} />
                 )}
 
                 {page === 'Meu perfil' && <UserProfile notice={notice} />}

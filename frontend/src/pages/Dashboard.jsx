@@ -2,13 +2,40 @@ import React from 'react';
 import Chart from '../components/Chart';
 import { label } from '../constants';
 
-export default function Dashboard({ dash, leads, nav }) {
+export default function Dashboard({ dash, leads, courses = [], nav }) {
     const metrics = [
         ['Interessados', dash.totalInteressados],
         ['Matrículas', dash.matriculas],
         ['Conversão', `${dash.taxaConversao || 0}%`],
         ['Tarefas pendentes', dash.tarefasPendentes]
     ];
+
+    const getCourseName = l => {
+        if (!l) return 'Sem curso';
+        const c = l.curso || l.course;
+        if (!c) {
+            const id = l.cursoId || l.courseId;
+            if (id) {
+                const match = courses.find(x => x.id === +id);
+                if (match?.nome) return match.nome;
+            }
+            return 'Sem curso';
+        }
+        if (typeof c === 'string') return c;
+        if (typeof c === 'object') {
+            if (c.nome) return c.nome;
+            if (c.name) return c.name;
+            if (c.id) {
+                const match = courses.find(x => x.id === +c.id);
+                if (match?.nome) return match.nome;
+            }
+        }
+        if (typeof c === 'number') {
+            const match = courses.find(x => x.id === c);
+            if (match?.nome) return match.nome;
+        }
+        return 'Sem curso';
+    };
 
     return (
         <>
@@ -75,10 +102,17 @@ export default function Dashboard({ dash, leads, nav }) {
                     .slice(-5)
                     .reverse()
                     .map(l => (
-                        <div className="overview-row" key={l.id}>
+                        <div
+                            className="overview-row"
+                            key={l.id}
+                            style={{ gridTemplateColumns: '1.2fr 1fr 150px' }}
+                        >
                             <b>{l.nome}</b>
-                            <span>
-                                {l.curso?.nome || 'Sem curso'}
+                            <span
+                                title={getCourseName(l)}
+                                style={{ minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
+                                {getCourseName(l)}
                             </span>
                             <em>{label(l.etapa)}</em>
                         </div>

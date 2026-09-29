@@ -11,8 +11,22 @@ export default function Chart({ title, data = {} }) {
 
             {entries.length ? (
                 entries.map(([k, v]) => (
-                    <div className="bar" key={k}>
-                        <span>{label(k)}</span>
+                    <div
+                        className="bar"
+                        key={k}
+                        style={{ gridTemplateColumns: '110px 1fr 28px' }}
+                    >
+                        <span
+                            title={label(k)}
+                            style={{
+                                minWidth: 0,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}
+                        >
+                            {label(k)}
+                        </span>
 
                         <i>
                             <b style={{ width: `${(v / max) * 100}%` }} />
