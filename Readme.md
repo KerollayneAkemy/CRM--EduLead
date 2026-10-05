@@ -10,7 +10,6 @@ O EduLead centraliza as informações dos potenciais alunos em uma única plataf
 
 📸 Dashboard
 
-"Dashboard do EduLead" (docs/images/dashboard.jpg)
 
 🚀 Principais funcionalidades
 
