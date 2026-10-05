@@ -4,12 +4,19 @@ O EduLead é um sistema de CRM desenvolvido para instituições de ensino, com f
 
 O projeto faz parte do Projeto Prático 2026.2, aplicando conceitos de desenvolvimento de software, arquitetura, banco de dados, UX/UI e metodologia ágil.
 
+---
+
 💡 Sobre o projeto
 
 O EduLead centraliza as informações dos potenciais alunos em uma única plataforma, facilitando o gerenciamento dos contatos, o acompanhamento das oportunidades e a organização do processo de matrícula.
 
+---
+
 📸 Dashboard
 
+"Dashboard do EduLead"
+
+---
 
 🚀 Principais funcionalidades
 
@@ -23,9 +30,11 @@ O EduLead centraliza as informações dos potenciais alunos em uma única plataf
 - ✅ Tarefas e lembretes: organização das atividades pendentes.
 - 🎓 Controle de matrículas: acompanhamento de matrículas realizadas e desistências.
 
+---
+
 🛠️ Tecnologias
 
-Front-end
+💻 Front-end
 
 - React
 - JavaScript (JSX)
@@ -33,20 +42,24 @@ Front-end
 - CSS3
 - Vite
 
-Back-end
+⚙️ Back-end
 
 - Java
 - Spring Boot
 - Spring Data JPA
 - Maven
 
-Banco de dados
+🗄️ Banco de dados
 
 - MySQL
+
+---
 
 🏗️ Arquitetura
 
 O sistema possui uma estrutura dividida entre front-end, back-end e banco de dados, organizando a interface, as regras de negócio e a persistência das informações em responsabilidades distintas.
+
+---
 
 👥 Equipe
 
@@ -56,17 +69,23 @@ Kerollayne| Back-end & Banco de Dados
 Emily| Arquitetura & Requisitos
 Kerollayne| Produto & Scrum
 
+---
+
 📌 Status
 
 🚀 Versão funcional — em evolução
 
 O EduLead já possui uma versão funcional, com suas principais funcionalidades implementadas. O projeto continua em evolução, com foco em aprimoramentos, documentação e melhorias na experiência do usuário.
 
+---
+
 📱 Acompanhe o projeto
 
 Confira as atualizações e o desenvolvimento do EduLead no LinkedIn:
 
 👉 "EduLead no LinkedIn" (https://www.linkedin.com/company/edulead-524a36430/)
+
+---
 
 📚 Projeto acadêmico
 
@@ -76,4 +95,7 @@ Desenvolvimento de uma plataforma web na categoria CRM (Customer Relationship Ma
 
 ---
 
-EduLead — Conectando instituições a novos alunos.
+<p align="center">
+  🎓 <strong>EduLead</strong><br>
+  <em>Conectando instituições a novos alunos.</em>
+</p>
