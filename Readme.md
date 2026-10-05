@@ -1,33 +1,28 @@
-EduLead — CRM para Captação de Alunos
+🎓 EduLead — CRM Educacional
 
-O EduLead é um sistema de gerenciamento de relacionamento com clientes (CRM) desenvolvido para auxiliar instituições de ensino no processo de captação e acompanhamento de alunos interessados. A plataforma centraliza informações, organiza oportunidades e facilita o acompanhamento de cada etapa até a matrícula.
+O EduLead é um sistema de CRM desenvolvido para instituições de ensino, com foco na captação, organização e acompanhamento de interessados, desde o primeiro contato até a matrícula.
 
-O projeto está sendo desenvolvido como parte do Projeto Prático 2026.2, com foco na aplicação de conhecimentos de desenvolvimento de software, organização de dados e trabalho colaborativo.
+O projeto faz parte do Projeto Prático 2026.2, aplicando conceitos de desenvolvimento de software, arquitetura, banco de dados, UX/UI e metodologia ágil.
 
+💡 Sobre o projeto
 
-"Dashboard do EduLead" (docs/images/dashboard.png)
+O EduLead centraliza as informações dos potenciais alunos em uma única plataforma, facilitando o gerenciamento dos contatos, o acompanhamento das oportunidades e a organização do processo de matrícula.
 
-Dashboard principal do EduLead, com indicadores de captação, interessados por etapa, origem dos contatos, cursos mais procurados e contatos recentes.
+📸 Dashboard
 
-✨ Funcionalidades
+"Dashboard do EduLead" (docs/images/dashboard.jpg)
 
-- Dashboard: visão geral dos indicadores e das atividades de captação.
-- Gestão de interessados: cadastro e acompanhamento de potenciais alunos.
-- Funil de captação: organização dos interessados conforme a etapa do processo.
-- Gerenciamento de tarefas: acompanhamento de atividades e pendências.
-- Gestão de cursos: organização e consulta dos cursos oferecidos.
-- Usuários: gerenciamento de acesso à plataforma.
-- Acompanhamento de contatos: consulta das informações e do andamento dos interessados.
+🚀 Principais funcionalidades
 
-Etapas do funil
-
-1. Novo interessado
-2. Primeiro contato
-3. Aguardando retorno
-4. Visita/aula experimental
-5. Documentação
-6. Matrícula realizada
-7. Desistiu
+- 🔐 Login e usuários: gerenciamento de acesso ao sistema.
+- 👥 Cadastro de interessados: registro e organização de potenciais alunos.
+- 📚 Cadastro de cursos: gerenciamento dos cursos oferecidos.
+- 📊 Dashboard: visualização de indicadores e informações da captação.
+- 🔄 Funil de matrícula: acompanhamento dos interessados em cada etapa.
+- 🔎 Pesquisa e filtros: localização de registros.
+- 📝 Histórico de contatos: acompanhamento das interações com interessados.
+- ✅ Tarefas e lembretes: organização das atividades pendentes.
+- 🎓 Controle de matrículas: acompanhamento de matrículas realizadas e desistências.
 
 🛠️ Tecnologias
 
@@ -52,53 +47,34 @@ Banco de dados
 
 🏗️ Arquitetura
 
-O EduLead utiliza uma estrutura separada entre front-end e back-end, permitindo organizar a interface, as regras de negócio e a persistência dos dados em responsabilidades distintas.
-
-- Front-end: responsável pela interface e pela interação com o usuário, desenvolvido em React.
-- Back-end: responsável pelo processamento das requisições e pelas regras de negócio, utilizando Java e Spring Boot.
-- Banco de dados: responsável pelo armazenamento e gerenciamento das informações, utilizando MySQL.
-
-🚀 Como executar
-
-As instruções de instalação e execução devem corresponder à configuração atual do projeto.
-
-Pré-requisitos
-
-- Node.js e npm
-- Java JDK
-- Maven
-- MySQL
-
-Front-end
-
-cd frontend
-npm install
-npm run dev
-
-Back-end
-
-Entre na pasta do back-end e execute:
-
-mvn spring-boot:run
-
-Configure as variáveis de conexão com o MySQL conforme o arquivo de configuração do projeto antes de iniciar a aplicação.
+O sistema possui uma estrutura dividida entre front-end, back-end e banco de dados, organizando a interface, as regras de negócio e a persistência das informações em responsabilidades distintas.
 
 👥 Equipe
 
-Integrante| Responsabilidade
-Ana| Front-end / UX / UI
-Kerollayne| Back-end / Banco de Dados
-Emily| Arquitetura / Análise
+Integrante| Função
+Ana| Front-end & UX/UI
+Kerollayne| Back-end & Banco de Dados
+Emily| Arquitetura & Requisitos
+Kerollayne| Produto & Scrum
 
-🎓 Contexto acadêmico
+📌 Status
 
-Projeto desenvolvido em grupo no Projeto Prático 2026.2, com o objetivo de aplicar conceitos de engenharia de software, desenvolvimento web, modelagem de dados e colaboração em equipe.
+🚀 Versão funcional — em evolução
 
-🔗 Links
+O EduLead já possui uma versão funcional, com suas principais funcionalidades implementadas. O projeto continua em evolução, com foco em aprimoramentos, documentação e melhorias na experiência do usuário.
 
-- Repositório: "GitHub — EduLead" (https://github.com/KerollayneAkemy/CRM--EduLead)
-- LinkedIn: "EduLead" (https://www.linkedin.com/company/edulead-524a36430/)
+📱 Acompanhe o projeto
+
+Confira as atualizações e o desenvolvimento do EduLead no LinkedIn:
+
+👉 "EduLead no LinkedIn" (https://www.linkedin.com/company/edulead-524a36430/)
+
+📚 Projeto acadêmico
+
+Projeto Prático 2026.2
+
+Desenvolvimento de uma plataforma web na categoria CRM (Customer Relationship Management), voltada à gestão e captação de alunos em instituições de ensino.
 
 ---
 
-EduLead — Organizando oportunidades, aproximando alunos e instituições.
+EduLead — Conectando instituições a novos alunos.
