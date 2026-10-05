@@ -1,5 +1,5 @@
 import React from 'react';
-
+// Usado para criar uma nova tarefa
 export default function TaskFormCard({ f, setF, add, leads }) {
     return (
         <div className="task-form-card">
@@ -11,7 +11,7 @@ export default function TaskFormCard({ f, setF, add, leads }) {
                         placeholder="Ex: Ligar para confirmar presença"
                         value={f.titulo || ''}
                         onChange={e =>
-                            setF({
+                            setF({ // setF ataualiza o estado
                                 ...f,
                                 titulo: e.target.value
                             })
@@ -36,13 +36,13 @@ export default function TaskFormCard({ f, setF, add, leads }) {
                 <label>
                     Interessado
                     <select
-                        value={f.interessado?.id || ''}
+                        value={f.interessado?.id || ''} // cria uma lista de interessados 
                         onChange={e =>
                             setF({
                                 ...f,
                                 interessado: e.target.value
                                     ? {
-                                        id: +e.target.value
+                                        id: +e.target.value // transforma o valor em numero
                                     }
                                     : null
                             })

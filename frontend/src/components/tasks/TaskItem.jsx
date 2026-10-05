@@ -1,5 +1,5 @@
 import React from 'react';
-
+// representa cada tarefa individualmente na tela. Ele mostra o título, status, prazo, descrição e os botões de Concluir e Excluir.
 export default function TaskItem({ t, done, setTaskToDelete }) {
     const isDone = t.status === 'CONCLUIDA' || t.status === 'CONCLUÍDA';
 

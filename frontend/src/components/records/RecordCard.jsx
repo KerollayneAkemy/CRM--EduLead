@@ -8,7 +8,7 @@ export default function RecordCard({
     setEditingCourse,
     archiveCourse,
     removeCourse,
-    toggleUserActive
+    toggleUserActive // Recebendo informações do componente pai
 }) {
     return (
         <article className="record-card">
@@ -19,8 +19,8 @@ export default function RecordCard({
             <div className="record-details">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <b>{x.nome}</b>
-                    {type === 'Cursos' && (
-                        <span className="badge-active-status">Ativo</span>
+                    {type === 'Cursos' && ( //se o tipo for cursos, mostra "ativo"
+                        <span className="badge-active-status">Ativo</span> 
                     )}
                 </div>
                 <small>
@@ -31,26 +31,26 @@ export default function RecordCard({
                 </small>
             </div>
 
-            {type === 'Cursos' ? (
+            {type === 'Cursos' ? ( // mostrar as opçoes do curso
                 <div className="record-actions-wrapper">
                     <button
                         type="button"
                         className="btn-menu-trigger"
                         onClick={() =>
-                            setOpenMenuId(openMenuId === x.id ? null : x.id)
+                            setOpenMenuId(openMenuId === x.id ? null : x.id) // o menu que está aberto é o desse curso?
                         }
                         title="Opções"
                     >
                         ⋮
                     </button>
-                    {openMenuId === x.id && (
+                    {openMenuId === x.id && ( // saber se deve mostrar o menu
                         <div className="record-dropdown-menu">
                             <button
                                 type="button"
                                 className="dropdown-item"
                                 onClick={() => {
-                                    setOpenMenuId(null);
-                                    setEditingCourse({
+                                    setOpenMenuId(null); // fechar o menu
+                                    setEditingCourse({ // pega o curso atual e edita
                                         id: x.id,
                                         nome: x.nome,
                                         descricao: x.descricao || '',
@@ -65,7 +65,7 @@ export default function RecordCard({
                                 className="dropdown-item"
                                 onClick={() => {
                                     setOpenMenuId(null);
-                                    archiveCourse(x);
+                                    archiveCourse(x); // fecha o menu e arquiva o curso
                                 }}
                             >
                                 📦 Arquivar
@@ -97,11 +97,11 @@ export default function RecordCard({
                                 ? 'activate-user'
                                 : 'deactivate-user'
                         }
-                        onClick={() => toggleUserActive(x)}
+                        onClick={() => toggleUserActive(x)} // se for usuário vai ativar e desativar , Quando é um curso, ele disponibiliza as opções de editar, arquivar e excluir
                     >
                         {x.ativo === false
                             ? 'Ativar'
-                            : 'Desativar'}
+                            : 'Desativar'} 
                     </button>
                 </div>
             ) : (

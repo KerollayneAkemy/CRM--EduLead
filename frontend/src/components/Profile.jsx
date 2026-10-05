@@ -1,45 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { label } from '../constants';
-
-export default function Profile({ lead, close, notice }) {
+// Modal com a ficha detalhada de um interessado. Permite visualizar informações de contato, 
+// etapas e adicionar histórico de interações (ex.: "Liguei e cliente pediu retorno amanhã").
+export default function Profile({ lead, close, notice }) { // Criando Profile. Lead = é o interessado, close = Função para fechar o modal
     const [history, setHistory] = useState([]);
     const [tasks, setTasks] = useState([]);
-    const [note, setNote] = useState('');
+    const [note, setNote] = useState(''); // Esse estado guarda o texto que o usuário está digitando no campo: Descreva o contato realizado
+    // 3 UseState
 
     const refresh = async () => {
         setHistory(
-            await api(`/interessados/${lead.id}/interacoes`)
+            await api(`/interessados/${lead.id}/interacoes`) // fazer requisição
         );
 
         setTasks(
-            await api(`/interessados/${lead.id}/tarefas`)
+            await api(`/interessados/${lead.id}/tarefas`) // buscar tarefas do interessado
         );
     };
 
-    useEffect(() => {
+    useEffect(() => { // O useEffect executa uma função quando determinadas condições acontecem
         refresh();
-    }, [lead.id]);
+    }, [lead.id]); //Execute esse efeito quando o lead.id mudar
+    async function add(e) { //Registrar uma nova interação
+        e.preventDefault();  // Deixa o react cuidar da questão de carregamento da página
 
-    async function add(e) {
-        e.preventDefault();
+        if (!note.trim()) return; // verifica se existe uma nota
 
-        if (!note.trim()) return;
-
-        try {
+        try { //Tentando executar esse código
             await api('/interacoes', {
                 method: 'POST',
-                body: JSON.stringify({
+                body: JSON.stringify({ //Preparando dados que irão para o back //O JSON.stringify transforma o objeto JavaScript em JSON para enviar os dados no corpo da requisição HTTP
                     tipo: 'CONTATO',
                     descricao: note,
                     interessado: { id: lead.id }
                 })
             });
 
-            setNote('');
+            setNote(''); // Limpa o campo de texto
             refresh();
             notice('Interação registrada.');
-        } catch (e) {
+        } catch (e) { // se alguma coisa der errado no try , vem para o catch
             notice(e.message);
         }
     }
@@ -86,9 +87,9 @@ export default function Profile({ lead, close, notice }) {
                     <button>Registrar</button>
                 </form>
 
-                {history.length ? (
-                    history.map(h => (
-                        <article className="timeline" key={h.id}>
+                {history.length ? ( // verificando se o array history possui elementos.
+                    history.map(h => ( // O React precisa identificar cada elemento de uma lista
+                        <article className="timeline" key={h.id}> 
                             <b>{h.tipo}</b>
                             <p>{h.descricao}</p>
                             <small>
@@ -104,7 +105,7 @@ export default function Profile({ lead, close, notice }) {
 
                 <h2>Tarefas deste interessado</h2>
 
-                {tasks.map(t => (
+                {tasks.map(t => ( // t = tarefa atual
                     <p key={t.id}>
                         • {t.titulo} — {t.status}
                     </p>

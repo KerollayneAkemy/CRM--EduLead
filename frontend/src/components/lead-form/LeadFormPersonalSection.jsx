@@ -1,5 +1,5 @@
 import React from 'react';
-
+// Este arquivo é responsável exclusivamente pela renderização visual da Seção de Dados Pessoais
 export default function LeadFormPersonalSection({ input }) {
     return (
         <div className="form-card-section">

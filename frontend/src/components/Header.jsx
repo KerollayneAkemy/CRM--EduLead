@@ -1,14 +1,17 @@
 import React from 'react';
 import logoImg from '../img/EduLead - Logo.jpeg';
 
-export default function Header({ logout, onToggleMenu, onProfile, onHome, user }) {
-    const initials = (user?.nome || 'Usuário')
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map(word => word[0])
-        .join('')
-        .toUpperCase();
+// Barra superior fixa da aplicação. Exibe o logotipo da instituição, botão para abrir/fechar
+//  o menu mobile, dados do usuário logado (com as iniciais calculadas dinamicamente) e botão "Sair".
+
+export default function Header({ logout, onToggleMenu, onProfile, onHome, user }) { //O componente recebe informações e funções do componente pai
+    const initials = (user?.nome || 'Usuário') // Para aparecer somente as iniciais no avatar , por isso precisa fazer isso :
+        .trim() // Remove espaços desnecessários do começo e do final.
+        .split(/\s+/) // representa espaços em branco
+        .slice(0, 2) // Pega somente os dois primeiros elementos
+        .map(word => word[0]) // percorre cada elemento do array
+        .join('') // junta os elementos.
+        .toUpperCase(); // Transforma tudo em letras maiúsculas.
 
     return (
         <header>

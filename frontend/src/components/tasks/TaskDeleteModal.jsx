@@ -1,7 +1,7 @@
 import React from 'react';
-
+// verificação caso deseja excluir uma tarefas/lembretes. Vefificar se tem certeza que deseja excluir uma tarefa
 export default function TaskDeleteModal({ taskToDelete, setTaskToDelete, removeTask }) {
-    if (!taskToDelete) return null;
+    if (!taskToDelete) return null;  // se nao tiver tarefa para excluir não mostra nada
 
     return (
         <div className="modal">
