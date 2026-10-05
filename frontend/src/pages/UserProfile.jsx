@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
-
+// é o componente responsável pela página “Meu perfil” do EduLead.
 export default function UserProfile({ notice }) {
     const [profile, setProfile] = useState(null);
     const [form, setForm] = useState({});
@@ -36,12 +36,12 @@ export default function UserProfile({ notice }) {
     if (!profile) return <p style={{ padding: '20px' }}>Carregando perfil...</p>;
 
     const initials = (profile.nome || 'Usuário')
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map(w => w[0])
-        .join('')
-        .toUpperCase();
+        .trim() // remove espaços
+        .split(/\s+/) // divide as palavras
+        .slice(0, 2) // pega as 2 primeiras letra
+        .map(w => w[0]) // percorre
+        .join('') // junta
+        .toUpperCase(); // coloca maisculo
 
     return (
         <div className="profile-page-container">

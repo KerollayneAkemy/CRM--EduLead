@@ -1,27 +1,27 @@
 import React, { useMemo, useState } from 'react';
 import { STAGES, label } from '../constants';
 
-const normalize = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+// o componente que mostra a lista de interessados cadastrados e permite pesquisar e filtrar por etapa
 
-function isStageMatch(leadEtapa, selectedStage) {
-    if (!selectedStage) return true;
-    if (!leadEtapa) return false;
+const normalize = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); // padronizar um texto antes de comparar upercase transnforma em maisculo , replace remove caracteres
 
-    const leadStr = typeof leadEtapa === 'object' ? (leadEtapa.name || leadEtapa.etapa || '') : String(leadEtapa);
+function isStageMatch(leadEtapa, selectedStage) { // A etapa desse interessado é a mesma etapa que o usuário selecionou no filtro?
+    if (!selectedStage) return true; // Se nenhuma etapa foi selecionada, retorna true para mostrar todos os interessados
+    if (!leadEtapa) return false; // se n tiver uma etapa cadsatrada , n mostra filtro
+
+    const leadStr = typeof leadEtapa === 'object' ? (leadEtapa.name || leadEtapa.etapa || '') : String(leadEtapa); // caso venha em formato difernte
     const selStr = typeof selectedStage === 'object' ? (selectedStage.name || selectedStage.etapa || '') : String(selectedStage);
-
+   // pega a etapa e tranforma em texto
     const leadNorm = normalize(leadStr);
-    const selNorm = normalize(selStr);
-
+    const selNorm = normalize(selStr); // normaliza para facilitar a comparação
+ 
     if (leadNorm === selNorm) return true;
-
-    // Direct label match
+    
     const leadLabelNorm = normalize(label(leadStr));
     const selLabelNorm = normalize(label(selStr));
-    if (leadLabelNorm === selLabelNorm) return true;
+    if (leadLabelNorm === selLabelNorm) return true; // comparação pricipal
 
-    // Substring / partial match handling (e.g. VISITA_AULA_EXPERIMENTAL vs VISITA or AULA_EXPERIMENTAL)
-    if (leadNorm.length >= 4 && selNorm.length >= 4) {
+    if (leadNorm.length >= 4 && selNorm.length >= 4) { // extra
         if (selNorm.includes(leadNorm) || leadNorm.includes(selNorm)) return true;
     }
     if (leadLabelNorm.length >= 4 && selLabelNorm.length >= 4) {
@@ -30,7 +30,7 @@ function isStageMatch(leadEtapa, selectedStage) {
 
     return false;
 }
-
+// Pegar a lista de interessados e deixar somente aqueles que correspondem à pesquisa e à etapa selecionada
 export default function LeadList({ leads, open, nav }) {
     const [q, setQ] = useState('');
     const [stage, setStage] = useState('');

@@ -16,7 +16,7 @@ import Records from './pages/Records';
 import ArchivedCourses from './pages/ArchivedCourses';
 import Tasks from './pages/Tasks';
 import UserProfile from './pages/UserProfile';
-
+// controla tudo
 function App() {
     const [session, setSession] = useState(() =>
         JSON.parse(localStorage.getItem('edulead-session') || 'null')

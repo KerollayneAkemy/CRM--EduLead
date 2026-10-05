@@ -1,12 +1,12 @@
 import React from 'react';
 import { api } from '../api';
 import { STAGES, label } from '../constants';
-
+// funil
 export default function Pipeline({ leads, load, notice }) {
     async function move(id, etapa) {
         try {
-            await api(`/interessados/${id}/etapa`, {
-                method: 'PATCH',
+            await api(`/interessados/${id}/etapa`, { //alteração no back
+                method: 'PATCH', // alteração parcial
                 body: JSON.stringify({ etapa })
             });
 
@@ -31,7 +31,7 @@ export default function Pipeline({ leads, load, notice }) {
 
             <div className="kanban">
                 {STAGES.map((s, index) => {
-                    const stageLeads = leads.filter(l => l.etapa === s);
+                    const stageLeads = leads.filter(l => l.etapa === s); // separa os interessados q pertencem a etapa atual
                     return (
                         <React.Fragment key={s}>
                             <section
@@ -49,7 +49,7 @@ export default function Pipeline({ leads, load, notice }) {
                                         <b>{label(s)}</b>
                                     </div>
                                     <span className="col-badge">
-                                        {stageLeads.length}
+                                        {stageLeads.length} // contar os interessados
                                     </span>
                                 </div>
 
@@ -83,7 +83,7 @@ export default function Pipeline({ leads, load, notice }) {
                                                     )
                                                 }
                                             >
-                                                {STAGES.map(x => (
+                                                {STAGES.map(x => (  // percorre todas as etapas e cria uma opção para cada uma.
                                                     <option key={x} value={x}>
                                                         {label(x)}
                                                     </option>

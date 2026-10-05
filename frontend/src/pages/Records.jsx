@@ -3,7 +3,7 @@ import { api } from '../api';
 import RecordSideForm from '../components/records/RecordSideForm';
 import RecordCard from '../components/records/RecordCard';
 import EditCourseModal from '../components/records/EditCourseModal';
-
+// funciona como uma página de gerenciamento reutilizável para Cursos e Usuários.
 export default function Records({ type, path, fields, notice, load }) {
     const [items, setItems] = useState([]);
     const [f, setF] = useState({});
@@ -16,7 +16,7 @@ export default function Records({ type, path, fields, notice, load }) {
         refresh();
     }, [path]);
 
-    async function add(e) {
+    async function add(e) { // cadastrar novo registro
         e.preventDefault();
 
         try {
@@ -25,7 +25,7 @@ export default function Records({ type, path, fields, notice, load }) {
                 body: JSON.stringify(f)
             });
 
-            setF({});
+            setF({}); // depois do cad, limpa , atualiza e mostra a msg
             refresh();
             if (load) load();
             notice('Cadastro realizado.');
@@ -34,7 +34,7 @@ export default function Records({ type, path, fields, notice, load }) {
         }
     }
 
-    async function saveEdit(e) {
+    async function saveEdit(e) { // salvar edit do curso
         e.preventDefault();
         if (!editingCourse || !editingCourse.nome.trim()) return;
 
@@ -88,7 +88,7 @@ export default function Records({ type, path, fields, notice, load }) {
         try {
             await api(`/usuarios/${item.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({
+                body: JSON.stringify({ // transforma em JSON para ir pro back
                     ...item,
                     ativo: item.ativo === false
                 })

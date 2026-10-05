@@ -16,11 +16,11 @@ export default function Login({ onLogin }) {
 
         try {
             const result = await api('/auth/login', {
-                method: 'POST',
+                method: 'POST', // envinado dados p back
                 body: JSON.stringify(f)
             });
 
-            localStorage.setItem('edulead-session', JSON.stringify(result));
+            localStorage.setItem('edulead-session', JSON.stringify(result)); // result = resposta do back
             onLogin(result);
         } catch (e) {
             setError(e.message);
