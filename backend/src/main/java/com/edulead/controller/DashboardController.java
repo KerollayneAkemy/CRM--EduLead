@@ -33,6 +33,7 @@ public class DashboardController {
         result.put("totalInteressados", items.size());
         result.put("matriculas", matriculas);
         result.put("desistencias", count(items, "DESISTIU"));
+        // Evita divisão por zero e mantém duas casas decimais na taxa percentual.
         result.put("taxaConversao", items.isEmpty() ? 0 : Math.round(matriculas * 10000d / items.size()) / 100d);
         result.put("tarefasPendentes", tarefas.findByStatus("PENDENTE").size());
         result.put("porEtapa", group(items, item -> safe(item.etapa, "NOVO_INTERESSADO")));

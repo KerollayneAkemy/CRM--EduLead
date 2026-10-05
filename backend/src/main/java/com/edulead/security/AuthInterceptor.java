@@ -18,6 +18,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // Libera a requisição de pré-validação feita pelo navegador antes de chamadas com JWT.
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
@@ -31,6 +32,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // O React envia o token no formato: Authorization: Bearer <token>.
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw ApiException.unauthorized("Token não fornecido ou inválido");
@@ -44,6 +46,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             throw ApiException.unauthorized("Token inválido ou expirado");
         }
 
+        // Disponibiliza os dados do token para controllers como PerfilController.
         request.setAttribute("userId", claims.getSubject());
         request.setAttribute("userRole", claims.get("role"));
 

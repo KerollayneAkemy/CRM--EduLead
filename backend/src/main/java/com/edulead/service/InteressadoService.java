@@ -59,7 +59,9 @@ public class InteressadoService {
 
     public Interessado changeStage(Long id, String etapa) {
         Interessado item = find(id);
+        // A validação usa o enum para manter o funil igual no front-end e no back-end.
         item.etapa = stage(etapa);
+        // Registrar a movimentação também atualiza a referência do último contato.
         item.ultimoContato = LocalDate.now();
         return interessados.save(item);
     }

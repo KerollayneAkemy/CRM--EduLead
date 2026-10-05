@@ -15,6 +15,8 @@ public class Interessado {
     public String observacoes;
     public LocalDate ultimoContato;
     public LocalDate proximoContato;
+    // Muitos interessados podem demonstrar interesse pelo mesmo curso.
     @ManyToOne public Curso curso;
+    // Cada interessado pode ser acompanhado por um usuário responsável.
     @ManyToOne public Usuario responsavel;
 }

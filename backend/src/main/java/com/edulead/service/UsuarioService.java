@@ -60,6 +60,7 @@ public class UsuarioService {
     }
 
     public Usuario updateProfile(Long id, Usuario incoming) {
+        // Perfil próprio: altera apenas credenciais, nunca cargo ou status do usuário.
         Usuario current = find(id);
         if (incoming.email == null || incoming.email.isBlank()) {
             throw ApiException.badRequest("E-mail é obrigatório");
@@ -81,6 +82,7 @@ public class UsuarioService {
             if (incoming.senha.length() < 6) {
                 throw ApiException.badRequest("A senha deve possuir ao menos 6 caracteres");
             }
+            // BCrypt impede que a senha original seja persistida no banco.
             current.senha = passwordEncoder.encode(incoming.senha);
         }
         return usuarios.save(current);
