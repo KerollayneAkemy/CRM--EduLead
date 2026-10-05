@@ -16,25 +16,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/dashboard")
 @CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class DashboardController {
+
     private final InteressadoRepository interessados;
     private final TarefaRepository tarefas;
-    DashboardController(InteressadoRepository interessados, TarefaRepository tarefas) { this.interessados = interessados; this.tarefas = tarefas; }
-    @GetMapping Map<String, Object> all() {
+
+    DashboardController(InteressadoRepository interessados, TarefaRepository tarefas) {
+        this.interessados = interessados;
+        this.tarefas = tarefas;
+    }
+
+    @GetMapping
+    Map<String, Object> all() {
         List<Interessado> items = interessados.findAll();
         long matriculas = count(items, "MATRICULA_REALIZADA");
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("totalInteressados", items.size()); result.put("matriculas", matriculas); result.put("desistencias", count(items, "DESISTIU"));
+        result.put("totalInteressados", items.size());
+        result.put("matriculas", matriculas);
+        result.put("desistencias", count(items, "DESISTIU"));
         result.put("taxaConversao", items.isEmpty() ? 0 : Math.round(matriculas * 10000d / items.size()) / 100d);
         result.put("tarefasPendentes", tarefas.findByStatus("PENDENTE").size());
         result.put("porEtapa", group(items, item -> safe(item.etapa, "NOVO_INTERESSADO")));
-        result.put("porCurso", group(items, item -> item.curso == null ? "Sem curso" : safe(item.curso.nome, "Sem curso")));
+        result.put("porCurso",
+                group(items, item -> item.curso == null ? "Sem curso" : safe(item.curso.nome, "Sem curso")));
         result.put("porOrigem", group(items, item -> safe(item.origem, "Não informado")));
         return result;
     }
-    private long count(List<Interessado> items, String etapa) { return items.stream().filter(item -> etapa.equals(item.etapa)).count(); }
+
+    private long count(List<Interessado> items, String etapa) {
+        return items.stream().filter(item -> etapa.equals(item.etapa)).count();
+    }
+
     private Map<String, Long> group(List<Interessado> items, java.util.function.Function<Interessado, String> groupBy) {
         return items.stream().collect(Collectors.groupingBy(groupBy, LinkedHashMap::new, Collectors.counting()));
     }
-    private String safe(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
-}
 
+    private String safe(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+}

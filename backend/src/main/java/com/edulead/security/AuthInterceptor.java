@@ -26,6 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // Login é a única rota de API pública; todas as demais exigem um JWT válido.
         if (request.getRequestURI().startsWith("/api/auth/login")) {
             return true;
         }
@@ -53,6 +54,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if (requiresRole != null) {
             String role = (String) claims.get("role");
+            // GESTORA permanece aceito apenas para tokens antigos já emitidos.
             if (!requiresRole.value().equals(role) && !"GESTOR".equals(role) && !"GESTORA".equals(role)) {
                 throw ApiException.forbidden("Acesso negado");
             }

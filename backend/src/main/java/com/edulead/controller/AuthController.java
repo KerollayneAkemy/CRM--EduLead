@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class AuthController {
+
     private final UsuarioRepository usuarios;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-    
+
     public AuthController(UsuarioRepository usuarios, JwtService jwtService, PasswordEncoder passwordEncoder) {
         this.usuarios = usuarios;
         this.jwtService = jwtService;
@@ -29,7 +30,7 @@ public class AuthController {
                 .orElseThrow(() -> ApiException.badRequest("E-mail ou senha inválidos"));
         String senha = body.get("senha");
         if (senha == null || !passwordEncoder.matches(senha, usuario.senha)) {
-            // Compatibilidade temporária: um hash legado é migrado após o primeiro login válido.
+            // Senhas legadas em texto são migradas para BCrypt no login válido.
             if (senha == null || !senha.equals(usuario.senha)) {
                 throw ApiException.badRequest("E-mail ou senha inválidos");
             }

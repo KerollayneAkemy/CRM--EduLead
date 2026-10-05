@@ -58,7 +58,9 @@ function CRM({ logout, session }) {
             const [a, b, c, d] = await Promise.all([
                 api('/interessados'),
                 api('/cursos'),
-                isManager ? api('/usuarios') : Promise.resolve([]),
+                isManager
+                    ? api('/usuarios')
+                    : Promise.resolve([session.usuario]),
                 api('/dashboard')
             ]);
 

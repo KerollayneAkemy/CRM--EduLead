@@ -1,8 +1,7 @@
 package com.edulead.repository;
 
-import com.edulead.model.*;
+import com.edulead.model.Interacao;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InteracaoRepository extends JpaRepository<Interacao, Long> {

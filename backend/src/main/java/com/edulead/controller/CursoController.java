@@ -11,6 +11,7 @@ import java.util.List;
 @RequestMapping("/api/cursos")
 @CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class CursoController {
+
     private final CursoService cursos;
 
     public CursoController(CursoService cursos) {
