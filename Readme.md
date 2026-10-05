@@ -1,59 +1,104 @@
-# 🎓 EduLead — CRM Educacional
+EduLead — CRM para Captação de Alunos
 
-O **EduLead** é um CRM desenvolvido para instituições de ensino, com foco na **captação, organização e acompanhamento de interessados até a matrícula**.
+O EduLead é um sistema de gerenciamento de relacionamento com clientes (CRM) desenvolvido para auxiliar instituições de ensino no processo de captação e acompanhamento de alunos interessados. A plataforma centraliza informações, organiza oportunidades e facilita o acompanhamento de cada etapa até a matrícula.
 
-O projeto está sendo desenvolvido como parte do **Projeto Prático 2026.2**, aplicando conceitos de desenvolvimento de software, arquitetura, banco de dados, UX/UI e metodologia ágil.
+O projeto está sendo desenvolvido como parte do Projeto Prático 2026.2, com foco na aplicação de conhecimentos de desenvolvimento de software, organização de dados e trabalho colaborativo.
 
-## 💡 Sobre o projeto
 
-O EduLead centraliza os interessados em um único sistema, permitindo acompanhar cada oportunidade por meio de um **funil de matrícula**.
+"Dashboard do EduLead" (docs/images/dashboard.png)
 
-### Principais funcionalidades
+Dashboard principal do EduLead, com indicadores de captação, interessados por etapa, origem dos contatos, cursos mais procurados e contatos recentes.
 
-- 🔐 Login e usuários
-- 👥 Cadastro de interessados
-- 📚 Cadastro de cursos
-- 📊 Dashboard com indicadores
-- 🔄 Funil de matrícula
-- 🔎 Pesquisa e filtros
-- 📝 Histórico de contatos
-- ✅ Tarefas e lembretes
-- 🎓 Controle de matrículas e desistências
+✨ Funcionalidades
 
-## 🛠️ Tecnologias
+- Dashboard: visão geral dos indicadores e das atividades de captação.
+- Gestão de interessados: cadastro e acompanhamento de potenciais alunos.
+- Funil de captação: organização dos interessados conforme a etapa do processo.
+- Gerenciamento de tarefas: acompanhamento de atividades e pendências.
+- Gestão de cursos: organização e consulta dos cursos oferecidos.
+- Usuários: gerenciamento de acesso à plataforma.
+- Acompanhamento de contatos: consulta das informações e do andamento dos interessados.
+
+Etapas do funil
+
+1. Novo interessado
+2. Primeiro contato
+3. Aguardando retorno
+4. Visita/aula experimental
+5. Documentação
+6. Matrícula realizada
+7. Desistiu
+
+🛠️ Tecnologias
+
+Front-end
+
+- React
+- JavaScript (JSX)
+- HTML5
+- CSS3
+- Vite
+
+Back-end
 
 - Java
 - Spring Boot
 - Spring Data JPA
-- MySQL
-- HTML
-- CSS
-- JavaScript
 - Maven
 
-## 👥 Equipe
+Banco de dados
 
-| Integrante | Função |
-|---|---|
-| Ana | Front-end & UX/UI |
-| Kerollayne | Back-end & Banco de Dados |
-| Emily | Arquitetura & Requisitos |
-| Kerollayne | Produto & Scrum |
+- MySQL
 
-## 📌 Status
+🏗️ Arquitetura
 
-🚧 **Em desenvolvimento**
+O EduLead utiliza uma estrutura separada entre front-end e back-end, permitindo organizar a interface, as regras de negócio e a persistência dos dados em responsabilidades distintas.
 
-O projeto já possui uma versão inicial funcional e continuará evoluindo durante as próximas etapas da disciplina, com melhorias na interface, funcionalidades e experiência do usuário.
+- Front-end: responsável pela interface e pela interação com o usuário, desenvolvido em React.
+- Back-end: responsável pelo processamento das requisições e pelas regras de negócio, utilizando Java e Spring Boot.
+- Banco de dados: responsável pelo armazenamento e gerenciamento das informações, utilizando MySQL.
 
-## 📱 Acompanhe o projeto
+🚀 Como executar
 
-Acompanhe as atualizações e a evolução do EduLead no LinkedIn:
+As instruções de instalação e execução devem corresponder à configuração atual do projeto.
 
-👉 [EduLead no LinkedIn](https://www.linkedin.com/in/edulead-524a36430/)
+Pré-requisitos
 
-## 📚 Projeto Acadêmico
+- Node.js e npm
+- Java JDK
+- Maven
+- MySQL
 
-**Projeto Prático 2026.2**
+Front-end
 
-Desenvolvimento de uma plataforma web na categoria **CRM (Customer Relationship Management)**.
+cd frontend
+npm install
+npm run dev
+
+Back-end
+
+Entre na pasta do back-end e execute:
+
+mvn spring-boot:run
+
+Configure as variáveis de conexão com o MySQL conforme o arquivo de configuração do projeto antes de iniciar a aplicação.
+
+👥 Equipe
+
+Integrante| Responsabilidade
+Ana| Front-end / UX / UI
+Kerollayne| Back-end / Banco de Dados
+Emily| Arquitetura / Análise
+
+🎓 Contexto acadêmico
+
+Projeto desenvolvido em grupo no Projeto Prático 2026.2, com o objetivo de aplicar conceitos de engenharia de software, desenvolvimento web, modelagem de dados e colaboração em equipe.
+
+🔗 Links
+
+- Repositório: "GitHub — EduLead" (https://github.com/KerollayneAkemy/CRM--EduLead)
+- LinkedIn: "EduLead" (https://www.linkedin.com/company/edulead-524a36430/)
+
+---
+
+EduLead — Organizando oportunidades, aproximando alunos e instituições.
