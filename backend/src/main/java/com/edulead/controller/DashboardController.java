@@ -1,33 +1,31 @@
 package com.edulead.controller;
 
 import com.edulead.model.Interessado;
-import com.edulead.repository.InteressadoRepository;
-import com.edulead.repository.TarefaRepository;
+import com.edulead.service.InteressadoService;
+import com.edulead.service.TarefaService;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class DashboardController {
 
-    private final InteressadoRepository interessados;
-    private final TarefaRepository tarefas;
+    private final InteressadoService interessados;
+    private final TarefaService tarefas;
 
-    DashboardController(InteressadoRepository interessados, TarefaRepository tarefas) {
+    DashboardController(InteressadoService interessados, TarefaService tarefas) {
         this.interessados = interessados;
         this.tarefas = tarefas;
     }
 
     @GetMapping
     Map<String, Object> all() {
-        List<Interessado> items = interessados.findAll();
+        List<Interessado> items = interessados.all();
         long matriculas = count(items, "MATRICULA_REALIZADA");
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("totalInteressados", items.size());
@@ -35,7 +33,7 @@ public class DashboardController {
         result.put("desistencias", count(items, "DESISTIU"));
         // Evita divisão por zero e mantém duas casas decimais na taxa percentual.
         result.put("taxaConversao", items.isEmpty() ? 0 : Math.round(matriculas * 10000d / items.size()) / 100d);
-        result.put("tarefasPendentes", tarefas.findByStatus("PENDENTE").size());
+        result.put("tarefasPendentes", tarefas.all().stream().filter(tarefa -> "PENDENTE".equals(tarefa.status)).count());
         result.put("porEtapa", group(items, item -> safe(item.etapa, "NOVO_INTERESSADO")));
         result.put("porCurso",
                 group(items, item -> item.curso == null ? "Sem curso" : safe(item.curso.nome, "Sem curso")));

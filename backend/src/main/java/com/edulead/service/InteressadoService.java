@@ -5,6 +5,8 @@ import com.edulead.model.*;
 import com.edulead.repository.InteressadoRepository;
 import com.edulead.repository.InteracaoRepository;
 import com.edulead.repository.TarefaRepository;
+import com.edulead.security.AuthenticatedUser;
+import com.edulead.security.CurrentUser;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -28,45 +30,62 @@ public class InteressadoService {
     }
 
     public List<Interessado> all() {
-        return interessados.findAll();
+        AuthenticatedUser current = CurrentUser.get();
+        return current.isGestor() ? interessados.findAll() : interessados.findByResponsavelId(current.id());
     }
 
     public Interessado find(Long id) {
-        return interessados.findById(id).orElseThrow(() -> ApiException.notFound("Interessado"));
+        Interessado interessado = interessados.findById(id)
+                .orElseThrow(() -> ApiException.notFound("Interessado"));
+        ensureAccess(interessado);
+        return interessado;
     }
 
     public List<Interessado> followUps() {
         LocalDate limit = LocalDate.now().plusDays(7);
-        return interessados.findAll().stream().filter(i -> i.proximoContato != null && i.proximoContato.compareTo(limit) <= 0 && !EtapaFunil.MATRICULA_REALIZADA.name().equals(i.etapa) && !EtapaFunil.DESISTIU.name().equals(i.etapa)).sorted(Comparator.comparing(i -> i.proximoContato)).toList();
+        return all().stream().filter(i -> i.proximoContato != null && i.proximoContato.compareTo(limit) <= 0 && !EtapaFunil.MATRICULA_REALIZADA.name().equals(i.etapa) && !EtapaFunil.DESISTIU.name().equals(i.etapa)).sorted(Comparator.comparing(i -> i.proximoContato)).toList();
     }
 
     public Interessado create(Interessado incoming) {
         validate(incoming);
         if (incoming.etapa == null || incoming.etapa.isBlank()) {
             incoming.etapa = EtapaFunil.NOVO_INTERESSADO.name();
-        
-        }resolveRelations(incoming);
+        }
+
+        AuthenticatedUser current = CurrentUser.get();
+        // Um atendente não escolhe outro responsável: o backend usa o usuário do JWT.
+        if (!current.isGestor()) {
+            incoming.responsavel = usuarios.find(current.id());
+        }
+        resolveRelations(incoming);
         return interessados.save(incoming);
     }
 
     public Interessado update(Long id, Interessado incoming) {
         Interessado current = find(id);
         validate(incoming);
+
+        // Atendentes podem editar o lead, mas não podem transferi-lo para outro usuário.
+        if (!CurrentUser.get().isGestor()) {
+            incoming.responsavel = current.responsavel;
+        }
         resolveRelations(incoming);
         incoming.id = current.id;
         return interessados.save(incoming);
     }
 
     public Interessado changeStage(Long id, String etapa) {
+        String etapaValidada = stage(etapa);
         Interessado item = find(id);
         // A validação usa o enum para manter o funil igual no front-end e no back-end.
-        item.etapa = stage(etapa);
+        item.etapa = etapaValidada;
         // Registrar a movimentação também atualiza a referência do último contato.
         item.ultimoContato = LocalDate.now();
         return interessados.save(item);
     }
 
     public void delete(Long id) {
+        requireGestor();
         Interessado interessado = find(id);
         // Preserva histórico de atendimento e evita exclusões acidentais de dados relacionados.
         if (interacoes.existsByInteressadoId(id) || tarefas.existsByInteressadoId(id)) {
@@ -99,7 +118,6 @@ public class InteressadoService {
         if (item.curso != null) {
             if (item.curso.id == null) {
                 throw ApiException.badRequest("Curso inválido");
-            
             }
             item.curso = cursos.find(item.curso.id);
         }
@@ -107,10 +125,22 @@ public class InteressadoService {
         if (item.responsavel != null) {
             if (item.responsavel.id == null) {
                 throw ApiException.badRequest("Responsável inválido");
-            
             }
-        
             item.responsavel = usuarios.find(item.responsavel.id);
+        }
+    }
+
+    private void ensureAccess(Interessado interessado) {
+        AuthenticatedUser current = CurrentUser.get();
+        if (!current.isGestor()
+                && (interessado.responsavel == null || !current.id().equals(interessado.responsavel.id))) {
+            throw ApiException.forbidden("Você não possui acesso a este interessado");
+        }
+    }
+
+    private void requireGestor() {
+        if (!CurrentUser.get().isGestor()) {
+            throw ApiException.forbidden("Apenas gestores podem excluir interessados");
         }
     }
 }

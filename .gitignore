@@ -9,6 +9,7 @@ frontend/dist/
 .env
 .env.*
 !.env.example
+backend/.env
 .idea/
 .vscode/
 *.iml

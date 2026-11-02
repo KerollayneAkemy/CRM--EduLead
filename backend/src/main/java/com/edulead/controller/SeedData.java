@@ -8,12 +8,16 @@ import com.edulead.repository.InteressadoRepository;
 import com.edulead.repository.UsuarioRepository;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@Profile("dev")
+@ConditionalOnProperty(name = "edulead.seed.enabled", havingValue = "true")
 public class SeedData {
 
     @Bean
@@ -21,9 +25,7 @@ public class SeedData {
             PasswordEncoder passwordEncoder) {
 
         return args -> {
-            // Não sobrescreve dados existentes; a demonstração é criada somente no primeiro
-            // uso.
-
+            // Não sobrescreve dados existentes; a demonstração é criada apenas no primeiro uso.
             if (usuarios.count() > 0) {
                 return;
             }

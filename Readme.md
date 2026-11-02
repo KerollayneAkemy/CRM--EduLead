@@ -44,7 +44,8 @@ O EduLead centraliza o processo de relacionamento com potenciais alunos em uma �
 - Spring Web
 - Spring Data JPA
 - Spring Validation
-- Spring Security Crypto
+- Spring Security
+- Flyway (preparado para adoção controlada)
 - Maven
 - JWT (JJWT)
 
@@ -81,7 +82,9 @@ backend/
     │   │   ├── security/     # JWT e controle de acesso
     │   │   └── exception/    # Tratamento de exceções
     │   └── resources/
-    │       └── application.properties
+    │       ├── application.properties
+    │       ├── application-dev.properties
+    │       └── application-prod.properties
     └── test/                 # Testes automatizados
 ```
 
@@ -100,12 +103,16 @@ Após o login:
 Authorization: Bearer <token>
 ```
 
-5. O `AuthInterceptor` valida o token antes de permitir o acesso aos endpoints protegidos.
-6. A anotação `@RequiresRole` permite restringir operações de acordo com o perfil.
+5. O filtro JWT do Spring Security valida o token em todas as rotas protegidas.
+6. As permissões são aplicadas nas rotas e nas regras de negócio: GESTOR administra
+   todos os dados; ATENDENTE acessa somente seus interessados, tarefas e indicadores.
 
-As senhas são armazenadas utilizando `PasswordEncoder`.
+As senhas são armazenadas com BCrypt e nunca são retornadas pela API. Os cargos legados
+`GESTORA` e `ADMIN` continuam compatíveis como `GESTOR`.
 
-> **Observação:** o segredo JWT presente como valor padrão no projeto é destinado ao ambiente local. Em produção, deve ser substituído por uma variável de ambiente segura.
+> Em produção, `JWT_SECRET`, `DB_URL`, `DB_USER`, `DB_PASSWORD` e
+> `CORS_ALLOWED_ORIGIN` são obrigatórios. Consulte
+> [`docs/OPERACAO_BACKEND.md`](docs/OPERACAO_BACKEND.md) para a configuração completa.
 
 ## 🗄️ Banco de dados
 
@@ -122,13 +129,10 @@ JWT_SECRET
 CORS_ALLOWED_ORIGIN
 ```
 
-Em ambiente local, a aplicação possui valores padrão para facilitar o desenvolvimento.
-
-O Hibernate está configurado com:
-
-```properties
-spring.jpa.hibernate.ddl-auto=update
-```
+Use `backend/.env.example` como referência para as variáveis locais. O perfil `dev`
+usa Hibernate `update`; o perfil `prod` usa `validate` e não cria dados de demonstração.
+O Flyway está incluído, porém permanece desativado até o baseline seguro de bancos já
+existentes descrito na documentação operacional.
 
 ## 🚀 Como executar
 
@@ -150,6 +154,7 @@ cd CRM--EduLead
 
 ```bash
 cd backend
+$env:DB_PASSWORD="sua-senha-local" # PowerShell
 mvn spring-boot:run
 ```
 
@@ -188,6 +193,12 @@ http://localhost:5173
 | GET | `/api/interessados/{id}/interacoes` | Consultar histórico |
 | GET | `/api/interessados/{id}/tarefas` | Consultar tarefas |
 | DELETE | `/api/interessados/{id}` | Excluir interessado |
+| GET | `/api/cursos` | Consultar cursos |
+| POST/PUT/DELETE | `/api/cursos/**` | Gerenciar cursos (GESTOR) |
+| GET/POST/PUT/DELETE | `/api/usuarios/**` | Gerenciar usuários (GESTOR) |
+| GET/POST/PUT/PATCH/DELETE | `/api/tarefas/**` | Gerenciar tarefas conforme perfil |
+| POST | `/api/interacoes` | Registrar interação em interessado autorizado |
+| GET/PATCH | `/api/perfil` | Consultar ou alterar o próprio perfil |
 | GET | `/api/dashboard` | Consultar indicadores |
 
 ## 🧪 Testes
@@ -205,10 +216,9 @@ cd backend
 mvn test
 ```
 
-Entre as regras atualmente testadas estão:
-
-- rejeição de interessado sem nome ou telefone;
-- rejeição de alteração para uma etapa inexistente do funil.
+Os testes cobrem JWT, login, perfis, rotas protegidas, isolamento entre atendentes,
+validações, tarefas, interações, dashboard e respostas de erro. A documentação de
+operação informa a situação do schema MySQL e a estratégia segura do Flyway.
 
 ## 📚 Documentação
 

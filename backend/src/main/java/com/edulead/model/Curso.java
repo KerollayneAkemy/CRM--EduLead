@@ -7,7 +7,10 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Curso {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) public Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
     public String nome;
     public String descricao;
     public boolean ativo = true;

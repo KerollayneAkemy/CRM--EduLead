@@ -4,6 +4,7 @@ import com.edulead.exception.ApiException;
 import com.edulead.model.PerfilUsuario;
 import com.edulead.model.Usuario;
 import com.edulead.repository.UsuarioRepository;
+import com.edulead.security.CurrentUser;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -20,10 +21,12 @@ public class UsuarioService {
     }
 
     public List<Usuario> all() {
+        requireGestor();
         return usuarios.findAll();
     }
 
     public Usuario create(Usuario usuario) {
+        requireGestor();
         validate(usuario, true);
 
         if (usuarios.findByEmail(usuario.email.trim()).isPresent()) {
@@ -39,6 +42,7 @@ public class UsuarioService {
     }
 
     public Usuario update(Long id, Usuario incoming) {
+        requireGestor();
         Usuario current = find(id);
         validate(incoming, false);
 
@@ -89,6 +93,7 @@ public class UsuarioService {
     }
 
     public void delete(Long id) {
+        requireGestor();
         usuarios.delete(find(id));
     }
 
@@ -114,6 +119,12 @@ public class UsuarioService {
             PerfilUsuario.from(u.cargo);
         } catch (IllegalArgumentException e) {
             throw ApiException.badRequest("Perfil inválido. Use GESTOR ou ATENDENTE");
+        }
+    }
+
+    private void requireGestor() {
+        if (!CurrentUser.get().isGestor()) {
+            throw ApiException.forbidden("Apenas gestores podem administrar usuários");
         }
     }
 }

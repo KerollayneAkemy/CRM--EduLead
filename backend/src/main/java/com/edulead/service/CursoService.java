@@ -3,6 +3,7 @@ package com.edulead.service;
 import com.edulead.exception.ApiException;
 import com.edulead.model.Curso;
 import com.edulead.repository.CursoRepository;
+import com.edulead.security.CurrentUser;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -20,11 +21,13 @@ public class CursoService {
     }
 
     public Curso create(Curso curso) {
+        requireGestor();
         validate(curso);
         return cursos.save(curso);
     }
 
     public Curso update(Long id, Curso incoming) {
+        requireGestor();
         Curso current = find(id);
         validate(incoming);
         current.nome = incoming.nome.trim();
@@ -34,6 +37,7 @@ public class CursoService {
     }
 
     public void delete(Long id) {
+        requireGestor();
         try {
             cursos.delete(find(id));
             cursos.flush();
@@ -49,6 +53,12 @@ public class CursoService {
     private void validate(Curso curso) {
         if (curso.nome == null || curso.nome.isBlank()) {
             throw ApiException.badRequest("Informe o nome do curso");
+        }
+    }
+
+    private void requireGestor() {
+        if (!CurrentUser.get().isGestor()) {
+            throw ApiException.forbidden("Apenas gestores podem administrar cursos");
         }
     }
 }

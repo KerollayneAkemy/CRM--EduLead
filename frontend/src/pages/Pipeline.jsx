@@ -48,8 +48,8 @@ export default function Pipeline({ leads, load, notice }) {
                                     <div className="col-title">
                                         <b>{label(s)}</b>
                                     </div>
-                                    <span className="col-badge">
-                                        {stageLeads.length} // contar os interessados
+                                    <span className="col-badge"> 
+                                        {stageLeads.length} 
                                     </span>
                                 </div>
 

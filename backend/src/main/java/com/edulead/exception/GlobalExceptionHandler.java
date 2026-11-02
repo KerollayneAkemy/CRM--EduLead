@@ -3,8 +3,11 @@ package com.edulead.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -17,6 +20,18 @@ public class GlobalExceptionHandler {
     ResponseEntity<Map<String, Object>> responseStatus(ResponseStatusException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
         return ResponseEntity.status(status).body(body(status, exception.getReason(), request));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    ResponseEntity<Map<String, Object>> invalidRequest(Exception exception, HttpServletRequest request) {
+        return ResponseEntity.badRequest()
+                .body(body(HttpStatus.BAD_REQUEST, "Dados da requisição inválidos", request));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ResponseEntity<Map<String, Object>> conflict(DataIntegrityViolationException exception, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(body(HttpStatus.CONFLICT, "A operação viola uma regra de integridade dos dados", request));
     }
 
     @ExceptionHandler(Exception.class)

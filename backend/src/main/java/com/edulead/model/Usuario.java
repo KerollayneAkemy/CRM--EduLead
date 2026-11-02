@@ -9,10 +9,19 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Usuario {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) public Long id;
-    @Column(nullable = false) public String nome;
-    @Column(unique = true, nullable = false) public String email;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) public String senha;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
+    @Column(nullable = false)
+    public String nome;
+
+    @Column(unique = true, nullable = false)
+    public String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String senha;
+
     public String cargo = "ATENDENTE";
     public boolean ativo = true;
 }

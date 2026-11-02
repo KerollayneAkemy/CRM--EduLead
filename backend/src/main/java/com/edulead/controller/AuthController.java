@@ -1,17 +1,19 @@
 package com.edulead.controller;
 
+import com.edulead.exception.ApiException;
 import com.edulead.model.PerfilUsuario;
 import com.edulead.model.Usuario;
-import com.edulead.exception.ApiException;
 import com.edulead.repository.UsuarioRepository;
 import com.edulead.security.JwtService;
 import java.util.Map;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class AuthController {
 
     private final UsuarioRepository usuarios;
@@ -26,13 +28,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, String> body) {
-        Usuario usuario = usuarios.findByEmail(body.getOrDefault("email", ""))
-                .orElseThrow(() -> ApiException.badRequest("E-mail ou senha inválidos"));
+        String email = body.getOrDefault("email", "").trim().toLowerCase();
+        Usuario usuario = usuarios.findByEmail(email)
+                .orElseThrow(() -> ApiException.unauthorized("E-mail ou senha inválidos"));
         String senha = body.get("senha");
         if (senha == null || !passwordEncoder.matches(senha, usuario.senha)) {
             // Senhas legadas em texto são migradas para BCrypt no login válido.
             if (senha == null || !senha.equals(usuario.senha)) {
-                throw ApiException.badRequest("E-mail ou senha inválidos");
+                throw ApiException.unauthorized("E-mail ou senha inválidos");
             }
             usuario.senha = passwordEncoder.encode(senha);
             usuarios.save(usuario);

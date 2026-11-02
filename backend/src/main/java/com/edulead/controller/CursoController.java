@@ -2,14 +2,20 @@ package com.edulead.controller;
 
 import com.edulead.model.Curso;
 import com.edulead.service.CursoService;
-import com.edulead.security.RequiresRole;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/cursos")
-@CrossOrigin(origins = "${edulead.cors.allowed-origin}")
 public class CursoController {
 
     private final CursoService cursos;
@@ -24,19 +30,16 @@ public class CursoController {
     }
 
     @PostMapping
-    @RequiresRole("GESTOR")
     public Curso create(@RequestBody Curso curso) {
         return cursos.create(curso);
     }
 
     @PutMapping("/{id}")
-    @RequiresRole("GESTOR")
     public Curso update(@PathVariable Long id, @RequestBody Curso curso) {
         return cursos.update(id, curso);
     }
 
     @DeleteMapping("/{id}")
-    @RequiresRole("GESTOR")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         cursos.delete(id);
