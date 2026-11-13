@@ -1,8 +1,4 @@
-import React from 'react';
 import { label } from '../constants';
-// Gráfico de barras customizado criado em CSS/JSX puro 
-// sem bibliotecas pesadas. Recebe um objeto no formato { "Instagram": 10, "WhatsApp": 5 }, calcula o maior 
-// valor (Math.max) e ajusta proporcionalmente a largura das barras via estilo inline: width: ${(v / max) * 100}%.
 export default function Chart({ title, data = {} }) {
     const entries = Object.entries(data);
     const max = Math.max(...entries.map(x => x[1]), 1);
@@ -43,5 +39,3 @@ export default function Chart({ title, data = {} }) {
         </article>
     );
 }
-// calcula o maior 
-// valor (Math.max) e ajusta proporcionalmente a largura das barras via estilo inline

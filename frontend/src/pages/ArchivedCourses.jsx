@@ -1,23 +1,21 @@
-//Ela permite que o gestor veja os cursos que foram desativados e escolha entre restaurar ou excluir definitivamente.
-
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 
 export default function ArchivedCourses({ notice, load }) {
     const [items, setItems] = useState([]);
 
-    const refresh = () => // buscar os cursos no back e coloca em items somente os inativos
+    const refresh = () =>
         api('/cursos').then(data =>
-            setItems(data.filter(x => x.ativo === false)) //Pegue somente os cursos cujo ativo seja false
+            setItems(data.filter(x => x.ativo === false))
         );
 
-    useEffect(() => { // quando a pg carrega executa o refresh
+    useEffect(() => {
         refresh();
     }, []);
 
-    async function restoreCourse(item) { // quando o gestor clica em restaurar o curso
+    async function restoreCourse(item) {
         try {
-            await api(`/cursos/${item.id}`, { // manda uma requisição PUT para o backend.
+            await api(`/cursos/${item.id}`, {
                 method: 'PUT',
                 body: JSON.stringify({ ...item, ativo: true })
             });

@@ -5,6 +5,7 @@ import com.edulead.model.Interessado;
 import com.edulead.model.Tarefa;
 import com.edulead.service.InteressadoService;
 import com.edulead.service.InteracaoService;
+import com.edulead.service.HistoricoEtapaService;
 import com.edulead.service.TarefaService;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,14 @@ public class InteressadoController {
     private final InteressadoService interessados;
     private final InteracaoService interacoes;
     private final TarefaService tarefas;
+    private final HistoricoEtapaService historicos;
 
-    public InteressadoController(InteressadoService interessados, InteracaoService interacoes, TarefaService tarefas) {
+    public InteressadoController(InteressadoService interessados, InteracaoService interacoes, TarefaService tarefas,
+            HistoricoEtapaService historicos) {
         this.interessados = interessados;
         this.interacoes = interacoes;
         this.tarefas = tarefas;
+        this.historicos = historicos;
     }
 
     @GetMapping
@@ -60,8 +64,13 @@ public class InteressadoController {
 
     @PatchMapping("/{id}/etapa")
     public Interessado stage(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String etapa = body.get("etapa");
-        return interessados.changeStage(id, etapa);
+        Interessado atual = interessados.find(id);
+        String etapaAnterior = atual.etapa;
+        Interessado atualizado = interessados.changeStage(id, body.get("etapa"));
+        if (!etapaAnterior.equals(atualizado.etapa)) {
+            historicos.register(atualizado, etapaAnterior);
+        }
+        return atualizado;
     }
 
     @GetMapping("/{id}/interacoes")
@@ -72,6 +81,11 @@ public class InteressadoController {
     @GetMapping("/{id}/tarefas")
     public List<Tarefa> tasks(@PathVariable Long id) {
         return tarefas.forInteressado(id);
+    }
+
+    @GetMapping("/{id}/historico-etapas")
+    public List<com.edulead.model.HistoricoEtapa> stageHistory(@PathVariable Long id) {
+        return historicos.allForInteressado(id);
     }
 
     @DeleteMapping("/{id}")

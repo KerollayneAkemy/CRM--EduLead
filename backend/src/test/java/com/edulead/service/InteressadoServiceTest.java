@@ -111,6 +111,54 @@ class InteressadoServiceTest {
         assertEquals(7L, isolatedService.update(10L, incoming).responsavel.id);
     }
 
+    @Test
+    void changesStageAndRecordsTheDateOfTheMovement() {
+        InteressadoRepository repository = mock(InteressadoRepository.class);
+        Interessado lead = new Interessado();
+        lead.id = 10L;
+        when(repository.findById(10L)).thenReturn(java.util.Optional.of(lead));
+        when(repository.save(any(Interessado.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        InteressadoService isolatedService = new InteressadoService(repository, mock(CursoService.class),
+                mock(UsuarioService.class), mock(InteracaoRepository.class), mock(TarefaRepository.class));
+        authenticate(1L, PerfilUsuario.GESTOR);
+
+        Interessado updated = isolatedService.changeStage(10L, "PRIMEIRO_CONTATO");
+
+        assertEquals("PRIMEIRO_CONTATO", updated.etapa);
+        assertEquals(java.time.LocalDate.now(), updated.ultimoContato);
+    }
+
+    @Test
+    void preventsDeletingLeadWithLinkedHistoryOrTasks() {
+        InteressadoRepository repository = mock(InteressadoRepository.class);
+        InteracaoRepository interacoes = mock(InteracaoRepository.class);
+        Interessado lead = new Interessado();
+        lead.id = 10L;
+        when(repository.findById(10L)).thenReturn(java.util.Optional.of(lead));
+        when(interacoes.existsByInteressadoId(10L)).thenReturn(true);
+        InteressadoService isolatedService = new InteressadoService(repository, mock(CursoService.class),
+                mock(UsuarioService.class), interacoes, mock(TarefaRepository.class));
+        authenticate(1L, PerfilUsuario.GESTOR);
+
+        assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> isolatedService.delete(10L));
+    }
+
+    @Test
+    void managerCanDeleteLeadWithoutLinkedRecords() {
+        InteressadoRepository repository = mock(InteressadoRepository.class);
+        Interessado lead = new Interessado();
+        lead.id = 10L;
+        when(repository.findById(10L)).thenReturn(java.util.Optional.of(lead));
+        InteressadoService isolatedService = new InteressadoService(repository, mock(CursoService.class),
+                mock(UsuarioService.class), mock(InteracaoRepository.class), mock(TarefaRepository.class));
+        authenticate(1L, PerfilUsuario.GESTOR);
+
+        isolatedService.delete(10L);
+
+        verify(repository).delete(lead);
+    }
+
     private void authenticate(Long id, PerfilUsuario perfil) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(new AuthenticatedUser(id, perfil), null));

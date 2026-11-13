@@ -1,26 +1,26 @@
-// função central para fazer as requisições do frontend para o backend do EduLead.
 export const API = 'http://localhost:8080/api';
 
 export async function api(path, options = {}) {
     const session = JSON.parse(localStorage.getItem('edulead-session') || 'null');
     const authHeader = session?.token ? { 'Authorization': `Bearer ${session.token}` } : {};
+    const isFormData = options.body instanceof FormData;
 
-    const r = await fetch(API + path, {
-        headers: { 'Content-Type': 'application/json', ...authHeader },
+    const response = await fetch(API + path, {
+        headers: {
+            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+            ...authHeader
+        },
         ...options
     });
 
-    if (!r.ok) {
-        let m = 'Não foi possível concluir a ação.';
+    if (!response.ok) {
+        let message = 'Não foi possível concluir a ação.';
         try {
-            m = (await r.json()).message || m; // Aqui ele tenta ler a resposta do backend como JSON.
-        } catch { }
+            message = (await response.json()).message || message;
+        } catch {}
 
-        throw Error(m);
+        throw new Error(message);
     }
 
-    return r.status === 204 ? null : r.json(); // A requisição deu certo, mas não existe conteúdo para retornar.
+    return response.status === 204 ? null : response.json();
 }
-// Esse arquivo centraliza as requisições da aplicação para a API. 
-// Ele monta a URL, recupera o token de autenticação salvo na sessão, envia esse token no header e também trata 
-// possíveis erros e respostas do backend

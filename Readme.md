@@ -25,6 +25,9 @@ O EduLead centraliza o processo de relacionamento com potenciais alunos em uma �
 - 🔎 **Pesquisa e filtros:** apoio à localização e organização dos registros.
 - 🛡️ **Tratamento de erros:** respostas padronizadas para exceções da API.
 - 🧪 **Testes automatizados:** testes unitários de regras importantes do fluxo de interessados.
+- 📎 **Anexos privados:** estrutura preparada para arquivos de interessados no Cloudflare R2.
+- 🤖 **Assistente interno:** suporte orientado ao uso do CRM, configurável por provedor de IA.
+- 👋 **Apresentação e guia inicial:** página pública e onboarding para usuários autenticados.
 
 ## 🛠️ Tecnologias
 
@@ -134,6 +137,10 @@ usa Hibernate `update`; o perfil `prod` usa `validate` e não cria dados de demo
 O Flyway está incluído, porém permanece desativado até o baseline seguro de bancos já
 existentes descrito na documentação operacional.
 
+Cloudflare R2 e Gemini são opcionais e ficam desabilitados até suas variáveis de ambiente
+serem configuradas. Veja `backend/.env.example` e
+[`docs/OPERACAO_BACKEND.md`](docs/OPERACAO_BACKEND.md).
+
 ## 🚀 Como executar
 
 ### Pré-requisitos
@@ -217,8 +224,9 @@ mvn test
 ```
 
 Os testes cobrem JWT, login, perfis, rotas protegidas, isolamento entre atendentes,
-validações, tarefas, interações, dashboard e respostas de erro. A documentação de
-operação informa a situação do schema MySQL e a estratégia segura do Flyway.
+CRUD de cursos, tarefas, interações, movimentação do funil, dashboard, validações e
+respostas de erro. A documentação de operação informa a situação do schema MySQL e a
+estratégia segura do Flyway.
 
 ## 📚 Documentação
 

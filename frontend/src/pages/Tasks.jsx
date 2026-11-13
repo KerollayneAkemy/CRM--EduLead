@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 import TaskFormCard from '../components/tasks/TaskFormCard';
 import TaskItem from '../components/tasks/TaskItem';
 import TaskDeleteModal from '../components/tasks/TaskDeleteModal';
-// componente principal da página de tarefas
+
 export default function Tasks({ leads, notice }) {
     const [tasks, setTasks] = useState([]);
     const [f, setF] = useState({});

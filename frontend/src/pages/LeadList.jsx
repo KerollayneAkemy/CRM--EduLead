@@ -1,27 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { STAGES, label } from '../constants';
 
-// o componente que mostra a lista de interessados cadastrados e permite pesquisar e filtrar por etapa
+const PAGE_SIZE = 8;
 
-const normalize = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); // padronizar um texto antes de comparar upercase transnforma em maisculo , replace remove caracteres
+const normalize = value => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-function isStageMatch(leadEtapa, selectedStage) { // A etapa desse interessado é a mesma etapa que o usuário selecionou no filtro?
-    if (!selectedStage) return true; // Se nenhuma etapa foi selecionada, retorna true para mostrar todos os interessados
-    if (!leadEtapa) return false; // se n tiver uma etapa cadsatrada , n mostra filtro
+function isStageMatch(leadEtapa, selectedStage) {
+    if (!selectedStage) return true;
+    if (!leadEtapa) return false;
 
-    const leadStr = typeof leadEtapa === 'object' ? (leadEtapa.name || leadEtapa.etapa || '') : String(leadEtapa); // caso venha em formato difernte
+    const leadStr = typeof leadEtapa === 'object' ? (leadEtapa.name || leadEtapa.etapa || '') : String(leadEtapa);
     const selStr = typeof selectedStage === 'object' ? (selectedStage.name || selectedStage.etapa || '') : String(selectedStage);
-   // pega a etapa e tranforma em texto
     const leadNorm = normalize(leadStr);
-    const selNorm = normalize(selStr); // normaliza para facilitar a comparação
+    const selNorm = normalize(selStr);
  
     if (leadNorm === selNorm) return true;
     
     const leadLabelNorm = normalize(label(leadStr));
     const selLabelNorm = normalize(label(selStr));
-    if (leadLabelNorm === selLabelNorm) return true; // comparação pricipal
+    if (leadLabelNorm === selLabelNorm) return true;
 
-    if (leadNorm.length >= 4 && selNorm.length >= 4) { // extra
+    if (leadNorm.length >= 4 && selNorm.length >= 4) {
         if (selNorm.includes(leadNorm) || leadNorm.includes(selNorm)) return true;
     }
     if (leadLabelNorm.length >= 4 && selLabelNorm.length >= 4) {
@@ -30,10 +29,15 @@ function isStageMatch(leadEtapa, selectedStage) { // A etapa desse interessado �
 
     return false;
 }
-// Pegar a lista de interessados e deixar somente aqueles que correspondem à pesquisa e à etapa selecionada
+
+function csvValue(value) {
+    return `"${String(value ?? '').replaceAll('"', '""')}"`;
+}
+
 export default function LeadList({ leads, open, nav }) {
     const [q, setQ] = useState('');
     const [stage, setStage] = useState('');
+    const [page, setPage] = useState(1);
 
     const filtered = useMemo(
         () =>
@@ -46,6 +50,40 @@ export default function LeadList({ leads, open, nav }) {
             ),
         [leads, q, stage]
     );
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const currentPage = Math.min(page, totalPages);
+    const visibleLeads = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    function updateSearch(value) {
+        setQ(value);
+        setPage(1);
+    }
+
+    function updateStage(value) {
+        setStage(value);
+        setPage(1);
+    }
+
+    function exportCsv() {
+        const rows = [
+            ['Nome', 'E-mail', 'Telefone', 'Curso', 'Origem', 'Etapa'],
+            ...filtered.map(lead => [
+                lead.nome,
+                lead.email,
+                lead.telefone,
+                lead.curso?.nome || '',
+                lead.origem,
+                label(lead.etapa)
+            ])
+        ];
+        const content = `\uFEFF${rows.map(row => row.map(csvValue).join(';')).join('\n')}`;
+        const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8;' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'interessados-edulead.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+    }
 
     return (
         <section className="directory-page">
@@ -56,21 +94,26 @@ export default function LeadList({ leads, open, nav }) {
                     <p>{filtered.length} contato(s) encontrado(s).</p>
                 </div>
 
-                <button onClick={() => nav('Novo interessado')}>
-                    + Cadastrar interessado
-                </button>
+                <div className="directory-actions">
+                    <button className="directory-export" onClick={exportCsv} disabled={!filtered.length}>
+                        Exportar CSV
+                    </button>
+                    <button onClick={() => nav('Novo interessado')}>
+                        + Cadastrar interessado
+                    </button>
+                </div>
             </div>
 
             <div className="directory-toolbar">
                 <input
                     placeholder="Buscar nome, e-mail ou curso"
                     value={q}
-                    onChange={e => setQ(e.target.value)}
+                    onChange={e => updateSearch(e.target.value)}
                 />
 
                 <select
                     value={stage}
-                    onChange={e => setStage(e.target.value)}
+                    onChange={e => updateStage(e.target.value)}
                 >
                     <option value="">Todas as etapas</option>
 
@@ -96,7 +139,7 @@ export default function LeadList({ leads, open, nav }) {
                     </thead>
 
                     <tbody>
-                        {filtered.map(l => (
+                        {visibleLeads.map(l => (
                             <tr key={l.id}>
                                 <td>
                                     <b>{l.nome}</b>
@@ -130,6 +173,26 @@ export default function LeadList({ leads, open, nav }) {
                     <div className="empty-state">
                         Nenhum interessado corresponde aos filtros aplicados.
                     </div>
+                )}
+
+                {filtered.length > PAGE_SIZE && (
+                    <nav className="directory-pagination" aria-label="Paginação de interessados">
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            ← Anterior
+                        </button>
+                        <span>Página {currentPage} de {totalPages}</span>
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                        >
+                            Próxima →
+                        </button>
+                    </nav>
                 )}
             </div>
         </section>

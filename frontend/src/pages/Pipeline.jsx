@@ -1,12 +1,11 @@
 import React from 'react';
 import { api } from '../api';
 import { STAGES, label } from '../constants';
-// funil
 export default function Pipeline({ leads, load, notice }) {
     async function move(id, etapa) {
         try {
-            await api(`/interessados/${id}/etapa`, { //alteração no back
-                method: 'PATCH', // alteração parcial
+            await api(`/interessados/${id}/etapa`, {
+                method: 'PATCH',
                 body: JSON.stringify({ etapa })
             });
 
@@ -31,7 +30,7 @@ export default function Pipeline({ leads, load, notice }) {
 
             <div className="kanban">
                 {STAGES.map((s, index) => {
-                    const stageLeads = leads.filter(l => l.etapa === s); // separa os interessados q pertencem a etapa atual
+                    const stageLeads = leads.filter(l => l.etapa === s);
                     return (
                         <React.Fragment key={s}>
                             <section
@@ -83,7 +82,7 @@ export default function Pipeline({ leads, load, notice }) {
                                                     )
                                                 }
                                             >
-                                                {STAGES.map(x => (  // percorre todas as etapas e cria uma opção para cada uma.
+                                                {STAGES.map(x => (
                                                     <option key={x} value={x}>
                                                         {label(x)}
                                                     </option>

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,5 +36,17 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(400, response.getStatusCode().value());
         assertEquals("Dados da requisição inválidos", response.getBody().get("message"));
+    }
+
+    @Test
+    void formatsDatabaseIntegrityErrorsAsConflictWithoutDetails() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/api/usuarios");
+
+        ResponseEntity<Map<String, Object>> response = new GlobalExceptionHandler()
+                .conflict(new DataIntegrityViolationException("internal database detail"), request);
+
+        assertEquals(409, response.getStatusCode().value());
+        assertEquals("A operação viola uma regra de integridade dos dados", response.getBody().get("message"));
     }
 }

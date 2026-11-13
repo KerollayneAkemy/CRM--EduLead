@@ -1,14 +1,12 @@
-import React from 'react';
-//Caso o usuário digitar errado o curso e quiser alterar temos a criação dessa página pra editar o curso
 export default function EditCourseModal({ editingCourse, setEditingCourse, saveEdit }) {
-    if (!editingCourse) return null; // Verifica se existe um curso sendo editado
+    if (!editingCourse) return null;
 
     return (
         <div className="modal">
             <section>
                 <button
                     className="close"
-                    onClick={() => setEditingCourse(null)} // "não estou editando mais nenhum curso"
+                    onClick={() => setEditingCourse(null)}
                 >
                     ×
                 </button>

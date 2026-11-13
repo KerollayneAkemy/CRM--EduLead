@@ -1,5 +1,3 @@
-import React from 'react';
-// Responsável pela renderização da Seção de Curso e Atendimento (dropdowns de seleção).
 export default function LeadFormCourseSection({ f, setF, courses, users }) {
     return (
         <div className="form-card-section">
@@ -15,22 +13,20 @@ export default function LeadFormCourseSection({ f, setF, courses, users }) {
                 <label>
                     Curso de interesse
                     <select
-                        value={f.curso?.id || ''} // Define qual valor está atualmente selecionado no <select>
-                        onChange={e => //É um evento , então aqui Ele acontece quando o usuário muda o valor do campo
+                        value={f.curso?.id || ''}
+                        onChange={e =>
                             setF({
-                                ...f, // mantém os dados que já estavam preenchidos e eu altero somente o campo turno para o valor escolhido pelo usuário
-                                curso: e.target.value // Operador ternário , pega o valro que o usuário acabou de colocar no campo
+                                ...f,
+                                curso: e.target.value
                                     ? { id: +e.target.value }
-                                    : null // não existe o curso selecionado
+                                    : null
                             })
                         }
-                        //Pegue todos os dados atuais do formulário, mantenha eles 
-                        // e altere apenas o campo curso para o ID selecionado. Se nenhum curso for selecionado, deixe curso como null
                     >
                         <option value="">Selecione um curso</option>
                         {courses
-                            .filter(c => c.ativo !== false) //filtro serve para mostrar somente os cursos que não estão inativos e depois usando o map para transformar cada curso em uma opção do campo de seleção
-                            .map(c => ( //percorre a array c= cursos, key = é uma informação que o React usa para identificar cada elemento de uma lista.
+                            .filter(c => c.ativo !== false)
+                            .map(c => (
                                 <option key={c.id} value={c.id}>
                                     {c.nome} 
                                 </option>

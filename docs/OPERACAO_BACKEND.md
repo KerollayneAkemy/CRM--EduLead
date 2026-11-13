@@ -81,11 +81,11 @@ segurança, **nenhuma migration inicial foi criada** e o Flyway continua desativ
 (`FLYWAY_ENABLED=false`). Isso evita recriar tabelas ou apagar dados.
 
 Foram identificadas diferenças a resolver somente por migration revisada: o banco ainda
-permite `NULL` em `usuario.email`, `interessado.nome` e `interacao.interessado_id`,
-enquanto o backend os trata como obrigatórios. O e-mail também não possui índice único
-no schema atual. A consulta de dados não encontrou e-mails nulos ou duplicados. Os
-registros antigos sem responsável foram revisados e atribuídos manualmente ao usuário
-correto; não há atribuição automática feita pelo backend para dados legados.
+permite `NULL` em `usuario.email`, `interessado.nome`, `interacao.interessado_id` e
+`tarefa.titulo`, enquanto o backend os trata como obrigatórios. O e-mail também não
+possui índice único no schema atual. A consulta de dados não encontrou e-mails nulos ou
+duplicados. Os registros antigos sem responsável foram revisados e atribuídos manualmente
+ao usuário correto; não há atribuição automática feita pelo backend para dados legados.
 
 Antes de habilitá-lo em outra base existente, um responsável pelo banco deve executar e
 guardar o resultado de:
@@ -117,8 +117,72 @@ Após conferir esse resultado contra as entidades Java e fazer backup:
 5. Para banco novo, criar uma migration inicial a partir do schema **inspecionado e
    aprovado**, testar nela e só depois habilitar Flyway.
 
-Não use `clean`, `repair` ou alterações de schema diretamente em produção sem backup
-e revisão. A primeira migration depende da inspeção real acima.
+### Artefatos preparados
+
+- `docs/sql/flyway-prevalidation.sql`: somente consultas de leitura. Ele verifica
+  e-mails nulos/vazios/duplicados, títulos nulos/vazios, definição das colunas,
+  charset, collation, índices e constraints atuais.
+- `V2__enforce_usuario_email_and_tarefa_title.sql`: torna `tarefa.titulo` e
+  `usuario.email` obrigatórios e cria `uk_usuario_email`. A versão é **2** porque a
+  versão **1** será somente o baseline manual do schema já existente; não existe e não
+  deve existir uma `V1` que recrie tabelas.
+
+O script de pré-validação precisa retornar **zero linhas** nas três primeiras consultas
+de dados antes da migration. Caso retorne qualquer linha, pare o procedimento: a equipe
+deve decidir e corrigir manualmente os dados, com backup e aprovação. A migration não
+faz correção automática e pode falhar de forma segura se a pré-condição não for atendida.
+
+### Teste em cópia isolada
+
+O projeto possui as dependências Flyway, mas não configura o plugin Maven nem inclui a
+CLI. Por isso, `info`, `validate` e `baseline` devem ser executados com uma instalação
+externa e aprovada da Flyway CLI compatível com a versão resolvida pelo Spring Boot. Não
+execute estes comandos no banco real.
+
+1. Faça backup do banco real e restaure-o em um banco MySQL de teste com outro nome.
+2. Compare `SHOW CREATE TABLE` e `SHOW INDEX` da cópia com o backup/origem e confirme
+   que ela contém os mesmos dados e schema antes de continuar.
+3. No cliente MySQL da cópia, execute o conteúdo de
+   `docs/sql/flyway-prevalidation.sql`. Corrija manualmente qualquer resultado de dados
+   incompatíveis antes de seguir.
+4. No diretório `backend`, configure variáveis que apontem **somente** para a cópia:
+
+```powershell
+$env:DB_URL = "jdbc:mysql://localhost:3306/edulead_teste"
+$env:DB_USER = "usuario_de_teste"
+$env:DB_PASSWORD = "senha-local-da-copia"
+$migrationPath = "filesystem:$((Resolve-Path 'src/main/resources/db/migration').Path.Replace('\', '/'))"
+```
+
+5. Com a Flyway CLI instalada, registre o baseline explicitamente. O comando cria
+   apenas a tabela de histórico do Flyway na cópia e marca o schema existente como
+   versão `1`:
+
+```powershell
+flyway "-url=$env:DB_URL" "-user=$env:DB_USER" "-password=$env:DB_PASSWORD" "-locations=$migrationPath" "-baselineVersion=1" baseline
+flyway "-url=$env:DB_URL" "-user=$env:DB_USER" "-password=$env:DB_PASSWORD" "-locations=$migrationPath" info
+flyway "-url=$env:DB_URL" "-user=$env:DB_USER" "-password=$env:DB_PASSWORD" "-locations=$migrationPath" validate
+```
+
+6. Habilite o Flyway somente para a cópia (`$env:FLYWAY_ENABLED = "true"`) e inicie o
+   backend com o perfil `prod`. A integração Spring Boot aplicará a `V2`; depois, use
+   novamente `flyway info` e execute as consultas de metadados do pré-check para
+   confirmar `NOT NULL` e o índice único.
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "prod"
+$env:JWT_SECRET = "um-segredo-de-teste-com-pelo-menos-32-caracteres"
+$env:CORS_ALLOWED_ORIGIN = "http://localhost:5173"
+$env:FLYWAY_ENABLED = "true"
+mvn spring-boot:run
+```
+
+7. Se qualquer etapa falhar, pare a aplicação, descarte apenas a cópia de teste e
+   restaure novamente o backup nela. Não use `clean` ou `repair` como tentativa de
+   reversão.
+
+`FLYWAY_ENABLED=false` continua sendo o padrão em `dev` e `prod`. A ativação no banco
+real só pode ocorrer após esse roteiro ser concluído e revisado pela equipe.
 
 ## Seed de desenvolvimento
 
@@ -155,16 +219,73 @@ foi criado nesta etapa para não fixar o contrato antes da definição do fronte
 
 ## Próximas extensões: anexos e IA
 
-Cloudflare R2 deve ser integrado somente pelo backend: uma futura entidade `anexo`
-deve guardar interessado, usuário que enviou, nome original, chave privada no bucket,
-tipo MIME, tamanho e datas. A API deve validar extensão/tamanho/tipo e fornecer URLs
-assinadas temporárias; nenhuma chave R2 deve ir para o frontend.
+### Arquivos privados com Cloudflare R2
 
-O assistente de IA deve receber a chave da API por variável de ambiente exclusiva do
-backend e expor operações de sugestão, resumo ou explicação. Ele não deve executar
-mudanças automáticas no funil, tarefas, matrículas ou exclusões. Antes de implementá-lo,
-definir limites de dados enviados, logs sem conteúdo sensível, prazo de retenção e o
-contrato de cada operação.
+A migration `V3__create_anexo.sql` cria a tabela `anexo` para guardar somente
+metadados: nome original, MIME type, tamanho, chave privada, interessado, usuário que
+enviou e data. Ela deve ser testada em uma cópia do banco antes de ser aplicada.
+
+Com `R2_ENABLED=true`, o backend aceita PDF, PNG, JPG/JPEG, DOC e DOCX de até 10 MB. Ele confere extensão, MIME declarado e assinatura básica do conteúdo. Para produção, mantenha um antivírus/serviço de inspeção complementar: essa verificação não substitui a análise contra malware.
+O conteúdo fica no bucket privado e o MySQL guarda apenas metadados. Upload, listagem e
+download verificam o acesso ao interessado. Downloads retornam URLs temporárias, limitadas
+pelo backend a 1--60 minutos; trate-as como credenciais temporárias e não as registre em
+logs ou mensagens. Gestor pode excluir qualquer anexo e atendente apenas os que enviou.
+
+```text
+R2_ENABLED=true
+R2_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+R2_BUCKET=nome-do-bucket-privado
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_MAX_FILE_SIZE=10MB
+R2_MAX_FILE_SIZE_BYTES=10485760
+R2_SIGNED_URL_MINUTES=10
+```
+
+Nunca exponha as chaves R2 no frontend. Se o navegador receber URLs assinadas, configure
+CORS no bucket para a origem permitida do frontend.
+
+| Método | Endpoint | Finalidade |
+| --- | --- | --- |
+| GET/POST | `/api/interessados/{id}/anexos` | Listar ou enviar anexo autorizado |
+| GET | `/api/anexos/{id}/download` | Obter URL temporária de download |
+| DELETE | `/api/anexos/{id}` | Excluir objeto e metadados autorizados |
+
+### Histórico do funil
+
+A migration `V4__create_historico_etapa.sql` prepara a tabela `historico_etapa`.
+Ela é aditiva: não altera nem remove registros existentes. A cada mudança de etapa, o
+backend registra a etapa anterior, a nova etapa e a data. Como as demais migrations,
+execute-a primeiro em uma cópia validada do banco usando Flyway; a configuração padrão
+continua com Flyway desativado.
+
+| Método | Endpoint | Finalidade |
+| --- | --- | --- |
+| GET | `/api/interessados/{id}/historico-etapas` | Consultar as mudanças autorizadas de etapa |
+
+### Assistente interno de IA
+
+O assistente atende apenas funcionários autenticados e explica os módulos e fluxos do
+EduLead. Ele não recebe dados de interessados, não executa ações e não expõe senhas,
+tokens ou informações de outro usuário. Perguntas com e-mail ou telefone são recusadas
+antes de chamar o provedor; ainda assim, usuários não devem inserir dados pessoais. O contrato `AssistantProvider` permite trocar
+o provedor sem alterar endpoints. A implementação atual usa Gemini quando configurada.
+
+```text
+AI_ENABLED=true
+AI_PROVIDER=gemini
+GEMINI_API_KEY=...
+AI_MODEL=gemini-3.5-flash-lite
+```
+
+Sem essas variáveis, o endpoint informa que o assistente não está configurado. Endpoints:
+`GET /api/assistente/status` e `POST /api/assistente` com `{ "pergunta": "..." }`.
+
+### Apresentação e onboarding
+
+A apresentação pública fica disponível antes do login. Após a autenticação, o botão
+**Assistente** fica na barra superior para tirar dúvidas sobre os módulos. O onboarding
+ainda não persiste progresso nesta versão.
 
 ## Testes
 
@@ -176,9 +297,10 @@ mvn test
 
 Os testes unitários cobrem geração/validação JWT, login e compatibilidade de papel
 legado, validações, isolamento de interessados/tarefas/interações, criação forçada de
-responsável, bloqueio de transferência por atendente, cálculo de dashboard, respostas
-de erro e autorizações HTTP. Os testes de integração contra MySQL e o baseline Flyway
-devem ser feitos antes da ativação do Flyway.
+responsável, bloqueio de transferência por atendente, CRUD de cursos, edição e conclusão
+de tarefas, registro de interações, movimentação do funil, cálculo de dashboard,
+respostas de erro e autorizações HTTP. Os testes de integração contra MySQL e o baseline
+Flyway devem ser feitos antes da ativação do Flyway.
 
 ## Endpoints preservados
 
@@ -190,6 +312,7 @@ devem ser feitos antes da ativação do Flyway.
 | GET/POST/PUT/PATCH/DELETE | `/api/tarefas/**` | Autenticado; exclusão somente GESTOR; ATENDENTE limitado às próprias tarefas |
 | POST | `/api/interacoes` | Autenticado e autorizado sobre o interessado |
 | GET | `/api/interessados/{id}/interacoes` | Autenticado e autorizado sobre o interessado |
+| GET | `/api/interessados/{id}/historico-etapas` | Autenticado e autorizado sobre o interessado |
 | GET | `/api/cursos` | Autenticado |
 | POST/PUT/DELETE | `/api/cursos/**` | GESTOR |
 | GET/POST/PUT/DELETE | `/api/usuarios/**` | GESTOR |
@@ -199,8 +322,9 @@ devem ser feitos antes da ativação do Flyway.
 
 Os contratos de login, perfil, interessados, etapas do funil, cursos, tarefas,
 interações, usuários e dashboard foram conferidos contra `frontend/src/api.js` e as
-páginas que chamam a API. Os caminhos, campos JSON e uso de `Authorization: Bearer`
-permanecem compatíveis; nenhuma mudança no frontend foi necessária.
+páginas que chamam a API. Os caminhos, métodos HTTP, campos JSON, resposta do login
+(`usuario` e `token`) e uso de `Authorization: Bearer` permanecem compatíveis; nenhuma
+mudança no frontend foi necessária.
 
 Há duas melhorias de interface que podem ser feitas futuramente, mas não bloqueiam o
 backend: a tela de tarefas ainda exibe o botão de exclusão para atendente, que recebe

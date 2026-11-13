@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function RecordCard({
     x,
@@ -8,19 +7,27 @@ export default function RecordCard({
     setEditingCourse,
     archiveCourse,
     removeCourse,
-    toggleUserActive // Recebendo informações do componente pai
+    toggleUserActive
 }) {
     return (
-        <article className="record-card">
+        <article
+            className={`record-card ${
+                type === 'Usuários'
+                    ? 'user-record-card'
+                    : type === 'Cursos'
+                        ? 'course-record-card'
+                        : ''
+            }`}
+        >
             <span className="record-avatar">
                 {x.nome?.slice(0, 1)}
             </span>
 
             <div className="record-details">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <div className="record-name-line">
                     <b>{x.nome}</b>
-                    {type === 'Cursos' && ( //se o tipo for cursos, mostra "ativo"
-                        <span className="badge-active-status">Ativo</span> 
+                    {type === 'Cursos' && (
+                        <span className="badge-active-status">Ativo</span>
                     )}
                 </div>
                 <small>
@@ -31,26 +38,24 @@ export default function RecordCard({
                 </small>
             </div>
 
-            {type === 'Cursos' ? ( // mostrar as opçoes do curso
+            {type === 'Cursos' ? (
                 <div className="record-actions-wrapper">
                     <button
                         type="button"
                         className="btn-menu-trigger"
-                        onClick={() =>
-                            setOpenMenuId(openMenuId === x.id ? null : x.id) // o menu que está aberto é o desse curso?
-                        }
+                        onClick={() => setOpenMenuId(openMenuId === x.id ? null : x.id)}
                         title="Opções"
                     >
                         ⋮
                     </button>
-                    {openMenuId === x.id && ( // saber se deve mostrar o menu
+                    {openMenuId === x.id && (
                         <div className="record-dropdown-menu">
                             <button
                                 type="button"
                                 className="dropdown-item"
                                 onClick={() => {
-                                    setOpenMenuId(null); // fechar o menu
-                                    setEditingCourse({ // pega o curso atual e edita
+                                    setOpenMenuId(null);
+                                    setEditingCourse({
                                         id: x.id,
                                         nome: x.nome,
                                         descricao: x.descricao || '',
@@ -65,7 +70,7 @@ export default function RecordCard({
                                 className="dropdown-item"
                                 onClick={() => {
                                     setOpenMenuId(null);
-                                    archiveCourse(x); // fecha o menu e arquiva o curso
+                                    archiveCourse(x);
                                 }}
                             >
                                 📦 Arquivar
@@ -97,11 +102,11 @@ export default function RecordCard({
                                 ? 'activate-user'
                                 : 'deactivate-user'
                         }
-                        onClick={() => toggleUserActive(x)} // se for usuário vai ativar e desativar , Quando é um curso, ele disponibiliza as opções de editar, arquivar e excluir
+                        onClick={() => toggleUserActive(x)}
                     >
                         {x.ativo === false
                             ? 'Ativar'
-                            : 'Desativar'} 
+                            : 'Desativar'}
                     </button>
                 </div>
             ) : (

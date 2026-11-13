@@ -29,4 +29,25 @@ class DashboardControllerTest {
         assertEquals(1, dashboard.get("totalInteressados"));
         assertEquals(1L, dashboard.get("tarefasPendentes"));
     }
+
+    @Test
+    void calculatesConversionAndGroupsUsingSafeLabels() {
+        InteressadoService interessados = mock(InteressadoService.class);
+        TarefaService tarefas = mock(TarefaService.class);
+        Interessado enrolled = new Interessado();
+        enrolled.etapa = "MATRICULA_REALIZADA";
+        enrolled.origem = "Instagram";
+        Interessado withdrawn = new Interessado();
+        withdrawn.etapa = "DESISTIU";
+        when(interessados.all()).thenReturn(List.of(enrolled, withdrawn));
+        when(tarefas.all()).thenReturn(List.of());
+
+        Map<String, Object> dashboard = new DashboardController(interessados, tarefas).all();
+
+        assertEquals(1L, dashboard.get("matriculas"));
+        assertEquals(1L, dashboard.get("desistencias"));
+        assertEquals(50.0, dashboard.get("taxaConversao"));
+        assertEquals(Map.of("MATRICULA_REALIZADA", 1L, "DESISTIU", 1L), dashboard.get("porEtapa"));
+        assertEquals(Map.of("Instagram", 1L, "Não informado", 1L), dashboard.get("porOrigem"));
+    }
 }

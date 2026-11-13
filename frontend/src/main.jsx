@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 import { api } from './api';
@@ -16,11 +16,25 @@ import Records from './pages/Records';
 import ArchivedCourses from './pages/ArchivedCourses';
 import Tasks from './pages/Tasks';
 import UserProfile from './pages/UserProfile';
-// controla tudo
+import Presentation from './pages/Presentation';
+import Assistant from './pages/Assistant';
+
 function App() {
     const [session, setSession] = useState(() =>
         JSON.parse(localStorage.getItem('edulead-session') || 'null')
     );
+    const [presentation, setPresentation] = useState(() =>
+        !session && localStorage.getItem('edulead-onboarding-seen') !== 'true'
+    );
+
+    function openLogin() {
+        localStorage.setItem('edulead-onboarding-seen', 'true');
+        setPresentation(false);
+    }
+
+    if (presentation && !session) {
+        return <Presentation onBack={openLogin} />;
+    }
 
     return session ? (
         <CRM
@@ -31,7 +45,7 @@ function App() {
             }}
         />
     ) : (
-        <Login onLogin={setSession} />
+        <Login onLogin={setSession} onPresentation={() => setPresentation(true)} />
     );
 }
 
@@ -98,6 +112,7 @@ function CRM({ logout, session }) {
                 logout={logout}
                 onHome={() => nav('Dashboard')}
                 onProfile={() => nav('Meu perfil')}
+                onAssistant={() => nav('Assistente')}
                 onToggleMenu={() => setMenuOpen(!menuOpen)}
             />
 
@@ -115,6 +130,8 @@ function CRM({ logout, session }) {
                 )}
 
                 {page === 'Meu perfil' && <UserProfile notice={notice} />}
+
+                {page === 'Assistente' && <Assistant notice={notice} />}
 
                 {page === 'Funil' && <Pipeline {...common} />}
 
@@ -151,8 +168,12 @@ function CRM({ logout, session }) {
                 {selected && (
                     <Profile
                         lead={selected}
+                        session={session}
                         close={() => setSelected(null)}
                         notice={notice}
+                        courses={courses}
+                        users={users}
+                        load={load}
                     />
                 )}
             </main>

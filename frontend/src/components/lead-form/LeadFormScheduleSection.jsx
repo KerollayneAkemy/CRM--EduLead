@@ -1,5 +1,3 @@
-import React from 'react';
-//  Este arquivo cuida do agendamento da data de retorno e caixa de texto de observações.
 export default function LeadFormScheduleSection({ f, setF }) {
     return (
         <div className="form-card-section">
@@ -16,14 +14,13 @@ export default function LeadFormScheduleSection({ f, setF }) {
                     Próximo contato
                     <input
                         type="date"
-                        value={f.proximoContato || ''} // Pegue o próximo contato que está armazenado no formulário
+                        value={f.proximoContato || ''}
                         onChange={e =>
                             setF({
                                 ...f,
-                                proximoContato: e.target.value // Pegue o valor que o usuário acabou de colocar no campo
+                                proximoContato: e.target.value
                             })
-                        } //tudo junto: Pegue os dados atuais do formulário, mantenha todos eles 
-                          //e atualize apenas proximoContato com o valor que o usuário acabou de escolher.
+                        }
                     />
                 </label>
 
@@ -33,7 +30,7 @@ export default function LeadFormScheduleSection({ f, setF }) {
                         value={f.observacoes || ''}
                         onChange={e =>
                             setF({
-                                ...f, // Pega as propriedades existentes de f e copia para um novo objeto
+                                ...f,
                                 observacoes: e.target.value
                             })
                         }

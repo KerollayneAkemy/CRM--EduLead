@@ -1,6 +1,4 @@
-//cadastrar um novo interessado no EduLead
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { api } from '../api';
 import { STAGES, label, phoneMask } from '../constants';
 import LeadFormPersonalSection from '../components/lead-form/LeadFormPersonalSection';
@@ -8,14 +6,14 @@ import LeadFormCourseSection from '../components/lead-form/LeadFormCourseSection
 import LeadFormScheduleSection from '../components/lead-form/LeadFormScheduleSection';
 
 export default function LeadForm({ courses, users, load, notice, nav }) {
-    const [f, setF] = useState({ // f quarda os dados atuais do formulário setF altera os dados
+    const [f, setF] = useState({
         etapa: STAGES[0],
-        origem: 'Instagram' // instagram origem inicial
+        origem: 'Instagram'
     });
 
-    const [busy, setBusy] = useState(false); // busy verifica se esta salvando o cadastro
+    const [busy, setBusy] = useState(false);
 
-    const input = (k, type = 'text') => ( // k = qual campo esta sendo criado
+    const input = (k, type = 'text') => (
         <label>
             {label(k)}
             <input
@@ -26,16 +24,11 @@ export default function LeadForm({ courses, users, load, notice, nav }) {
                         ? '(00) 00000-0000'
                         : undefined
                 }
-                value={f[k] || ''} // k diz qual propriedade queremos , se n existir usa string vazia
-                onChange={e => // qnd o user altera o campo
-                    setF({
-                        ...f, // mantem os dados que ja estao no forms
-                        [k]: // atualizar o campo que o nome está dentro de k
-                            k === 'telefone'
-                                ? phoneMask(e.target.value)
-                                : e.target.value // é oq a pessoa digitou
-                    })
-                }
+                value={f[k] || ''}
+                onChange={e => setF({
+                    ...f,
+                    [k]: k === 'telefone' ? phoneMask(e.target.value) : e.target.value
+                })}
             />
         </label>
     );
@@ -52,7 +45,7 @@ export default function LeadForm({ courses, users, load, notice, nav }) {
         try {
             await api('/interessados', {
                 method: 'POST',
-                body: JSON.stringify(f) // pega os dados do formulario e transforma em JSON p o back
+                body: JSON.stringify(f)
             });
 
             notice('Interessado cadastrado com sucesso.');

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { api } from '../api';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onPresentation }) {
     const [f, setF] = useState({
-        email: 'ana@edulead.com',
-        senha: '123456'
+        email: '',
+        senha: ''
     });
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
@@ -16,11 +16,11 @@ export default function Login({ onLogin }) {
 
         try {
             const result = await api('/auth/login', {
-                method: 'POST', // envinado dados p back
+                method: 'POST',
                 body: JSON.stringify(f)
             });
 
-            localStorage.setItem('edulead-session', JSON.stringify(result)); // result = resposta do back
+            localStorage.setItem('edulead-session', JSON.stringify(result));
             onLogin(result);
         } catch (e) {
             setError(e.message);
@@ -32,8 +32,9 @@ export default function Login({ onLogin }) {
     return (
         <div className="login">
             <form onSubmit={submit}>
-                <h1>EduLead</h1>
-                <p>Entre para acompanhar suas captações.</p>
+                <p className="login-kicker">ACESSO SEGURO</p>
+                <h1>Bem-vindo ao EduLead</h1>
+                <p>Entre para acompanhar sua operação de captação.</p>
 
                 <label>
                     E-mail
@@ -59,7 +60,9 @@ export default function Login({ onLogin }) {
                     {busy ? 'Entrando...' : 'Entrar'}
                 </button>
 
-                <small>Demo: ana@edulead.com · 123456</small>
+                <button type="button" className="login-presentation-link" onClick={onPresentation}>
+                    Conheça o EduLead e os planos
+                </button>
             </form>
         </div>
     );

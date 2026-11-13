@@ -23,4 +23,8 @@ public final class ApiException {
     public static ResponseStatusException forbidden(String message) {
         return new ResponseStatusException(HttpStatus.FORBIDDEN, message);
     }
+
+    public static ResponseStatusException serviceUnavailable(String message) {
+        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, message);
+    }
 }

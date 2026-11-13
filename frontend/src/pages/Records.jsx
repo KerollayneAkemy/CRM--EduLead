@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 import RecordSideForm from '../components/records/RecordSideForm';
 import RecordCard from '../components/records/RecordCard';
 import EditCourseModal from '../components/records/EditCourseModal';
-// funciona como uma página de gerenciamento reutilizável para Cursos e Usuários.
+
 export default function Records({ type, path, fields, notice, load }) {
     const [items, setItems] = useState([]);
     const [f, setF] = useState({});
@@ -16,7 +16,7 @@ export default function Records({ type, path, fields, notice, load }) {
         refresh();
     }, [path]);
 
-    async function add(e) { // cadastrar novo registro
+    async function add(e) {
         e.preventDefault();
 
         try {
@@ -25,7 +25,7 @@ export default function Records({ type, path, fields, notice, load }) {
                 body: JSON.stringify(f)
             });
 
-            setF({}); // depois do cad, limpa , atualiza e mostra a msg
+            setF({});
             refresh();
             if (load) load();
             notice('Cadastro realizado.');
@@ -34,7 +34,7 @@ export default function Records({ type, path, fields, notice, load }) {
         }
     }
 
-    async function saveEdit(e) { // salvar edit do curso
+    async function saveEdit(e) {
         e.preventDefault();
         if (!editingCourse || !editingCourse.nome.trim()) return;
 
@@ -88,7 +88,7 @@ export default function Records({ type, path, fields, notice, load }) {
         try {
             await api(`/usuarios/${item.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ // transforma em JSON para ir pro back
+                body: JSON.stringify({
                     ...item,
                     ativo: item.ativo === false
                 })
@@ -122,7 +122,7 @@ export default function Records({ type, path, fields, notice, load }) {
                 </div>
             </div>
 
-            <div className="management-grid">
+            <div className={`management-grid ${type === 'Cursos' ? 'course-management-grid' : ''}`}>
                 <RecordSideForm
                     singular={singular}
                     fields={fields}
@@ -141,7 +141,15 @@ export default function Records({ type, path, fields, notice, load }) {
                         </div>
                     </div>
 
-                    <div className="record-cards">
+                    <div
+                        className={`record-cards ${
+                            type === 'Usuários'
+                                ? 'user-records'
+                                : type === 'Cursos'
+                                    ? 'course-records'
+                                    : ''
+                        }`}
+                    >
                         {activeItems.map(x => (
                             <RecordCard
                                 key={x.id}

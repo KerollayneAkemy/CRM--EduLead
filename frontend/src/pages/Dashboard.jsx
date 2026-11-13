@@ -1,4 +1,3 @@
-import React from 'react';
 import Chart from '../components/Chart';
 import { label } from '../constants';
 
@@ -10,28 +9,28 @@ export default function Dashboard({ dash, leads, courses = [], nav }) {
         ['Tarefas pendentes', dash.tarefasPendentes]
     ];
 
-    const getCourseName = l => { // recebe o interessado e descobre qual curso dele
-        if (!l) return 'Sem curso';
-        const c = l.curso || l.course; // tenta em duas propriedades
-        if (!c) {
-            const id = l.cursoId || l.courseId;
+    const getCourseName = lead => {
+        if (!lead) return 'Sem curso';
+        const course = lead.curso || lead.course;
+        if (!course) {
+            const id = lead.cursoId || lead.courseId;
             if (id) {
-                const match = courses.find(x => x.id === +id); // se encontrar retorna o nome
+                const match = courses.find(item => item.id === +id);
                 if (match?.nome) return match.nome;
             }
             return 'Sem curso';
         }
-        if (typeof c === 'string') return c; //vefica o tipo de informação , se tiver somente o id, procura na lista courses
-        if (typeof c === 'object') {
-            if (c.nome) return c.nome;
-            if (c.name) return c.name;
-            if (c.id) {
-                const match = courses.find(x => x.id === +c.id);
+        if (typeof course === 'string') return course;
+        if (typeof course === 'object') {
+            if (course.nome) return course.nome;
+            if (course.name) return course.name;
+            if (course.id) {
+                const match = courses.find(item => item.id === +course.id);
                 if (match?.nome) return match.nome;
             }
         }
-        if (typeof c === 'number') {
-            const match = courses.find(x => x.id === c);
+        if (typeof course === 'number') {
+            const match = courses.find(item => item.id === course);
             if (match?.nome) return match.nome;
         }
         return 'Sem curso';
@@ -99,8 +98,8 @@ export default function Dashboard({ dash, leads, courses = [], nav }) {
                 <h2>Contatos recentes</h2>
 
                 {leads
-                    .slice(-5) // pega os ultimos 5 elementos da lista
-                    .reverse() // inverte a ordem
+                    .slice(-5)
+                    .reverse()
                     .map(l => (
                         <div
                             className="overview-row"
