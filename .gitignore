@@ -10,6 +10,9 @@ frontend/dist/
 .env.*
 !.env.example
 backend/.env
+# Arquivo local com segredos usado somente na publicação.
+deploy/production.env
+deploy/production.env.local
 .idea/
 .vscode/
 *.iml

@@ -1,4 +1,8 @@
-export const API = 'http://localhost:8080/api';
+// Em desenvolvimento o Vite conversa com o backend local. Na imagem publicada,
+// o Nginx encaminha /api para o container Spring Boot, mantendo tudo no mesmo domínio.
+const configuredApi = import.meta.env.VITE_API_URL?.trim();
+export const API = (configuredApi || (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api'))
+    .replace(/\/+$/, '');
 
 export async function api(path, options = {}) {
     const session = JSON.parse(localStorage.getItem('edulead-session') || 'null');
