@@ -65,6 +65,26 @@ token, preservando a compatibilidade com dados antigos.
 - Ao criar interessado ou tarefa como atendente, o responsável é extraído do JWT. Um
   `responsavel.id` recebido do cliente é ignorado. A atualização de um interessado ou
   tarefa também preserva o responsável para atendentes.
+- O login aceita no máximo cinco falhas por combinação de origem e e-mail em uma janela
+  de 15 minutos. O sexto pedido retorna `429` e `Retry-After: 900`. O contador é local
+  ao processo e é limpo quando a aplicação reinicia.
+- O assistente limita chamadas ao provedor a 20 perguntas por usuário em cinco minutos.
+  O endpoint continua indisponível quando `AI_ENABLED=false` ou a chave não foi definida.
+- Novas senhas e trocas de senha precisam ter pelo menos 8 caracteres e, para evitar o
+  truncamento silencioso do BCrypt, no máximo 72 bytes UTF-8. Senhas legadas existentes
+  continuam funcionando e são convertidas para BCrypt apenas após login válido.
+
+## Cabeçalhos e navegador
+
+O Nginx do frontend adiciona CSP, HSTS, `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy` e `Permissions-Policy`. A CSP
+permite somente recursos do mesmo domínio e as fontes Google usadas pela interface.
+`CORS_ALLOWED_ORIGIN` deve ser uma lista de origens explícitas separadas por vírgula;
+curingas são recusados na inicialização.
+
+O token JWT permanece em `localStorage` porque este é o contrato do frontend atual.
+O CSP reduz a superfície de XSS, mas a proteção máxima exige uma futura migração para
+cookie `HttpOnly`/`Secure` e uma estratégia CSRF coordenada com o frontend.
 
 Registros sem responsável não são apagados nem recebem uma atribuição automática.
 Gestores continuam vendo-os; atendentes não. Antes de ativar essa regra em uma base

@@ -7,10 +7,13 @@ import com.edulead.repository.UsuarioRepository;
 import com.edulead.security.CurrentUser;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
 public class UsuarioService {
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MAX_PASSWORD_BYTES = 72;
 
     private final UsuarioRepository usuarios;
     private final PasswordEncoder passwordEncoder;
@@ -58,6 +61,7 @@ public class UsuarioService {
         current.cargo = PerfilUsuario.from(incoming.cargo).name();
 
         if (incoming.senha != null && !incoming.senha.isBlank()) {
+            validatePassword(incoming.senha);
             current.senha = passwordEncoder.encode(incoming.senha);
         }
         return usuarios.save(current);
@@ -83,9 +87,7 @@ public class UsuarioService {
         current.email = email;
 
         if (incoming.senha != null && !incoming.senha.isBlank()) {
-            if (incoming.senha.length() < 6) {
-                throw ApiException.badRequest("A senha deve possuir ao menos 6 caracteres");
-            }
+            validatePassword(incoming.senha);
             // BCrypt impede que a senha original seja persistida no banco.
             current.senha = passwordEncoder.encode(incoming.senha);
         }
@@ -111,8 +113,10 @@ public class UsuarioService {
             throw ApiException.badRequest("E-mail inválido");
         }
 
-        if (passwordRequired && u.senha.length() < 6) {
-            throw ApiException.badRequest("A senha deve possuir ao menos 6 caracteres");
+        if (passwordRequired) {
+            validatePassword(u.senha);
+        } else if (u.senha != null && !u.senha.isBlank()) {
+            validatePassword(u.senha);
         }
 
         try {
@@ -125,6 +129,13 @@ public class UsuarioService {
     private void requireGestor() {
         if (!CurrentUser.get().isGestor()) {
             throw ApiException.forbidden("Apenas gestores podem administrar usuários");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password.length() < MIN_PASSWORD_LENGTH
+                || password.getBytes(StandardCharsets.UTF_8).length > MAX_PASSWORD_BYTES) {
+            throw ApiException.badRequest("A senha deve possuir ao menos 8 caracteres e no máximo 72 bytes");
         }
     }
 }

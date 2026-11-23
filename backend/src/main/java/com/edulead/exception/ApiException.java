@@ -24,6 +24,10 @@ public final class ApiException {
         return new ResponseStatusException(HttpStatus.FORBIDDEN, message);
     }
 
+    public static ResponseStatusException tooManyRequests(String message) {
+        return new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, message);
+    }
+
     public static ResponseStatusException serviceUnavailable(String message) {
         return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, message);
     }

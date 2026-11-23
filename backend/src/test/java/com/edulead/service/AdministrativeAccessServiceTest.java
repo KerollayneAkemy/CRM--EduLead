@@ -45,6 +45,21 @@ class AdministrativeAccessServiceTest {
         assertEquals(403, exception.getStatusCode().value());
     }
 
+    @Test
+    void gestorCannotCreateANewUserWithAWeakPassword() {
+        authenticate(1L, PerfilUsuario.GESTOR);
+        Usuario incoming = new Usuario();
+        incoming.nome = "Novo usuário";
+        incoming.email = "novo@edulead.com";
+        incoming.senha = "1234567";
+        incoming.cargo = "ATENDENTE";
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> new UsuarioService(mock(UsuarioRepository.class), mock(PasswordEncoder.class)).create(incoming));
+
+        assertEquals(400, exception.getStatusCode().value());
+    }
+
     private void authenticate(Long id, PerfilUsuario profile) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(new AuthenticatedUser(id, profile), null));

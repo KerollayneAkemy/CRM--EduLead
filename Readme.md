@@ -113,6 +113,15 @@ Authorization: Bearer <token>
 As senhas são armazenadas com BCrypt e nunca são retornadas pela API. Os cargos legados
 `GESTORA` e `ADMIN` continuam compatíveis como `GESTOR`.
 
+O backend limita tentativas inválidas de login e chamadas ao assistente de IA. Senhas
+novas ou alteradas exigem pelo menos 8 caracteres e respeitam o limite seguro de 72 bytes
+do BCrypt. Na publicação, o Nginx aplica CSP, HSTS e cabeçalhos contra clickjacking,
+sniffing de MIME e vazamento indevido de referenciador.
+
+> O token JWT ainda segue o contrato atual do frontend e fica no armazenamento local do
+> navegador. A migração futura para cookie `HttpOnly` requer mudança coordenada no fluxo
+> de autenticação e proteção CSRF.
+
 > Em produção, `JWT_SECRET`, `DB_URL`, `DB_USER`, `DB_PASSWORD` e
 > `CORS_ALLOWED_ORIGIN` são obrigatórios. Consulte
 > [`docs/OPERACAO_BACKEND.md`](docs/OPERACAO_BACKEND.md) para a configuração completa.

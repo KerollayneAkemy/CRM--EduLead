@@ -42,6 +42,9 @@ class NewFeatureAuthorizationIntegrationTest {
     private AssistenteService assistente;
 
     @MockitoBean
+    private AssistantRateLimiter assistantRateLimiter;
+
+    @MockitoBean
     private UsuarioRepository usuarios;
 
     @BeforeEach

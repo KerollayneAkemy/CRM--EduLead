@@ -98,6 +98,33 @@ CORS_ALLOWED_ORIGIN=https://edulead.duckdns.org
 Para habilitar anexos e assistente, inclua também as variáveis R2 e Gemini. Mantenha
 as chaves exclusivamente no Coolify. O frontend não recebe nenhuma dessas chaves.
 
+## Segurança operacional
+
+O `frontend/nginx.conf` aplica automaticamente CSP, HSTS, `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy` e `Permissions-Policy`. Depois de
+um deploy, valide os cabeçalhos sem enviar credenciais:
+
+```bash
+curl -I https://edulead.duckdns.org
+```
+
+`CORS_ALLOWED_ORIGIN` deve conter somente origens completas e explícitas, por exemplo
+`https://edulead.duckdns.org`. Não use `*` nem inclua caminhos como `/api`.
+
+- Após cinco falhas de login para a mesma combinação de origem e e-mail, o backend
+  bloqueia novas tentativas por 15 minutos.
+- O assistente de IA aceita até 20 perguntas por usuário a cada cinco minutos, evitando
+  uso acidental ou abusivo da chave do provedor.
+- Senhas criadas ou trocadas devem ter no mínimo 8 caracteres e no máximo 72 bytes
+  em UTF-8, limite seguro do BCrypt. Senhas existentes não são alteradas automaticamente.
+- Os limites são locais ao container e reiniciam quando ele é recriado. Se o sistema
+  crescer para múltiplas réplicas, configure também rate limiting no proxy/gateway.
+
+Como credenciais foram exibidas durante a configuração em telas e conversas, revogue e
+gere novas chaves R2, token DuckDNS e chave Gemini caso tenham sido compartilhados. Em
+seguida, atualize apenas as variáveis do Coolify e faça um redeploy. Nunca coloque esses
+valores em commits, arquivos `.env` versionados ou no frontend.
+
 ## 4. Primeiro deploy e validação
 
 1. Faça o primeiro deploy e acompanhe os logs.

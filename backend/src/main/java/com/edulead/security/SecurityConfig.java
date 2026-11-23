@@ -22,12 +22,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final String allowedOrigins;
+    private final List<String> allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
             @Value("${edulead.cors.allowed-origin}") String allowedOrigins) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.allowedOrigins = allowedOrigins;
+        this.allowedOrigins = parseAllowedOrigins(allowedOrigins);
     }
 
     @Bean
@@ -62,7 +62,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/interessados/**").hasRole("GESTOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/tarefas/**").hasRole("GESTOR")
                         .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll())
+                        // Rotas novas não podem se tornar públicas por acidente.
+                        .anyRequest().denyAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -70,12 +71,26 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(",")).map(String::trim).toList());
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+        configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
+    }
+
+    private List<String> parseAllowedOrigins(String origins) {
+        List<String> parsed = Arrays.stream((origins == null ? "" : origins).split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .distinct()
+                .toList();
+        if (parsed.isEmpty() || parsed.stream().anyMatch(origin -> origin.contains("*"))) {
+            throw new IllegalStateException("CORS_ALLOWED_ORIGIN deve conter origens explícitas e nunca curingas");
+        }
+        return parsed;
     }
 
     private void writeError(HttpServletResponse response, HttpStatus status, String error, String message)
