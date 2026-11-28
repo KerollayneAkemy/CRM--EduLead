@@ -12,6 +12,7 @@ export default function EditCourseModal({ editingCourse, setEditingCourse, saveE
                 </button>
                 <h1>Editar curso</h1>
                 <form
+                    className="edit-course-form"
                     onSubmit={saveEdit}
                     style={{
                         border: 0,

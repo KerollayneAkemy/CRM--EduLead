@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import logoImg from '../img/EduLead - Logo.jpeg';
 
 const steps = [
@@ -29,14 +30,84 @@ const plans = [
 
 const SALES_WHATSAPP = '5569992490485';
 
+const SR_DEFAULTS = {
+    origin: 'bottom', distance: '20px', duration: 650,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)', opacity: 0,
+    reset: false, cleanup: true, viewFactor: 0.08
+};
+
+const scopeSelector = selector =>
+    selector.split(',').map(part => `.presentation-page ${part.trim()}`).join(', ');
+
+const REVEAL_ITEMS = [
+    ['.presentation-brand img', { distance: '0px', scale: 0.96, duration: 700, delay: 40 }],
+    ['.presentation-hero .presentation-kicker', { distance: '16px', duration: 600, delay: 40 }],
+    ['.presentation-hero h1', { distance: '22px', duration: 700, delay: 110 }],
+    ['.presentation-hero p', { duration: 700, delay: 180 }],
+    ['.presentation-hero .presentation-primary', { distance: '16px', delay: 240 }],
+    ['.presentation-preview', { distance: '24px', duration: 750, delay: 180 }],
+    ['.preview-card', { distance: '12px', duration: 550, interval: 90, delay: 300 }],
+    ['.presentation-metrics', { distance: '18px', duration: 600 }],
+    ['.presentation-metrics article', { distance: '14px', duration: 550, interval: 100, delay: 80 }],
+    ['.presentation-intro .presentation-kicker', { distance: '16px', duration: 600 }],
+    ['.presentation-intro h2', { delay: 80 }],
+    ['.presentation-intro p', { distance: '18px', delay: 150 }],
+    ['.presentation-values article', { distance: '22px', interval: 100 }],
+    ['.presentation-flow', {}],
+    ['.presentation-flow-heading .presentation-kicker, .presentation-flow-heading h2', { distance: '16px', duration: 600, interval: 80, delay: 60 }],
+    ['.presentation-steps article', { duration: 600, interval: 100, delay: 120 }],
+    ['.pricing-heading .presentation-kicker, .pricing-heading h2, .pricing-heading p', { distance: '18px', duration: 620, interval: 80 }],
+    ['.pricing-card', { distance: '24px', duration: 680, interval: 120 }],
+    ['.pricing-note', { distance: '12px', duration: 550, delay: 100 }],
+    ['.presentation-cta', {}],
+    ['.presentation-cta .presentation-kicker, .presentation-cta h2, .presentation-cta .presentation-primary', { distance: '14px', duration: 600, interval: 80, delay: 80 }]
+];
+
 export default function Presentation({ onBack }) {
+    useEffect(() => {
+        const reducedMotion = typeof window !== 'undefined'
+            ? window.matchMedia?.('(prefers-reduced-motion: reduce)')
+            : null;
+        if (!reducedMotion || reducedMotion.matches) return;
+
+        let cancelled = false;
+        let sr = null;
+        const previousBodyHeight = document.body.style.height;
+
+        const cleanup = () => {
+            try { sr?.destroy(); } catch {}
+            sr = null;
+            document.documentElement.classList.remove('sr');
+            document.body.style.height = previousBodyHeight;
+        };
+
+        const onMotionChange = event => {
+            if (!event.matches) return;
+            cancelled = true;
+            cleanup();
+        };
+
+        reducedMotion.addEventListener?.('change', onMotionChange);
+
+        import('scrollreveal')
+            .then(({ default: ScrollReveal }) => {
+                if (cancelled || reducedMotion.matches) return cleanup();
+                sr = ScrollReveal(SR_DEFAULTS);
+                if (sr.noop) return cleanup();
+                REVEAL_ITEMS.forEach(([selector, options]) => sr.reveal(scopeSelector(selector), options));
+            })
+            .catch(cleanup);
+
+        return () => {
+            cancelled = true;
+            reducedMotion.removeEventListener?.('change', onMotionChange);
+            cleanup();
+        };
+    }, []);
+
     function contactSales(plan) {
         const message = `Olá! Tenho interesse em conhecer o plano ${plan.name} do EduLead.`;
-        window.open(
-            `https://wa.me/${SALES_WHATSAPP}?text=${encodeURIComponent(message)}`,
-            '_blank',
-            'noopener,noreferrer'
-        );
+        window.open(`https://wa.me/${SALES_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
     }
 
     return (
@@ -107,11 +178,7 @@ export default function Presentation({ onBack }) {
                                 <ul>
                                     {plan.items.map(item => <li key={item}>✓ {item}</li>)}
                                 </ul>
-                                <button
-                                    type="button"
-                                    className={plan.featured ? 'presentation-primary plan-primary' : 'plan-secondary'}
-                                    onClick={() => contactSales(plan)}
-                                >
+                                <button type="button" className={plan.featured ? 'presentation-primary plan-primary' : 'plan-secondary'} onClick={() => contactSales(plan)}>
                                     Quero conhecer
                                 </button>
                             </article>
